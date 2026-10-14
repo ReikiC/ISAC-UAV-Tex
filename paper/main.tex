@@ -149,6 +149,14 @@ placeholder
 
 \section{System Model}\label{sec:model}
 
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth]{UNNC.png}
+\caption{Illustration of the considered system.}
+\label{fig:system}
+\end{figure}
+
+
 \subsection{System Description}
 
 We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:system}. The network consists of $K$ UAVs ($\mathcal K=\{1,2,\ldots,K\}$), $M$ ground users ($\mathcal M$), $N$ static ground targets ($\mathcal N$), and a central controller (CC) hosted by a leader UAV.
@@ -202,57 +210,54 @@ Let $k(m)$ denote the serving UAV of user $m$. The desired signal power of user 
 I_m=\sum_{k\in\mathcal K}\sum_{j\in\mathcal M}\big|\mathbf h_{k,m}^H\mathbf w_{k,j}\big|^2\,\mathbf 1\{(k,j)\neq(k(m),m)\}\\
 +\sum_{k\in\mathcal K}\big|\mathbf h_{k,m}^H\mathbf w_{k,r}\big|^2.
 \end{multline}
-The received SINR and the achievable rate of user $m$ are then given by
+The received SINR $\gamma_m$ and the achievable rate of user $R_m$ are then given by
 \begin{equation}
 \gamma_m=\frac{S_m}{\sigma^2+I_m},\qquad R_m=B\log_2(1+\gamma_m),
 \end{equation}
 where $\sigma^2$ is the noise power and $B$ is the system bandwidth.
 
-
 \subsection{Sensing Model}
-\textbf{Echo model.} The reflection coefficient of target $n$ with respect to UAV $k$ is
+
+The reflection coefficient of target $n$ with respect to UAV $k$ is
 \begin{equation}
 \alpha_{k,n}=\sqrt{\frac{\lambda^2\sigma_{\rm rcs}}{(4\pi)^3d_{k,n}^4}}\;e^{j\psi_{k,n}},
 \end{equation}
-which captures the radar cross-section (RCS), the two-way path loss $d^{-4}$, and an unknown phase $\psi_{k,n}$. After matched filtering with each known symbol and coherent integration over $N_s=BT_s$ samples, the observation vector stacked over the $M{+}1$ streams is
+where $\sigma_{\rm rcs}$ is the radar cross-section (RCS), $d_{k,n}=\|\mathbf q_n-\mathbf p_k\|$ is the distance between UAV $k$ and target $n$ located at $\mathbf q_n$, the factor $d_{k,n}^{-4}$ accounts for the two-way path loss, and $\psi_{k,n}$ is an unknown phase. After matched filtering with each known symbol and coherent integration over $N_s=BT_s$ samples, where $T_s$ is the integration time, the observation vector stacked over the $M{+}1$ streams is
 \begin{equation}
 \mathbf y_{k,n}=\sqrt{N_s}\,\alpha_{k,n}\mathbf W_k^H\mathbf a(\theta_{k,n},\phi_{k,n})+\mathbf z,
 \end{equation}
-with $\mathbf z\sim\mathcal{CN}(\mathbf 0,\sigma_r^2\mathbf I_{M+1})$ and $\mathbf W_k=[\mathbf w_{k,1},\dots,\mathbf w_{k,M},\mathbf w_{k,r}]$. The echo SNR depends on the beamformers only through $\mathbf R_k$:
+where $\mathbf W_k=[\mathbf w_{k,1},\dots,\mathbf w_{k,M},\mathbf w_{k,r}]$ and $\mathbf z\sim\mathcal{CN}(\mathbf 0,\sigma_r^2\mathbf I_{M+1})$. The echo SNR depends on the beamformers only through $\mathbf R_k$:
 \begin{equation}
 \rho_{k,n}=\frac{N_s|\alpha_{k,n}|^2\,\mathbf a_{k,n}^H\mathbf R_k\mathbf a_{k,n}}{\sigma_r^2},
 \end{equation}
-where $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$. This is the entry point of the ISAC coupling: sensing performance is invariant to how power is split among streams and depends only on the aggregate spatial covariance, so communication streams also contribute to sensing.
+where $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$. This expression reveals the coupling between sensing and communication: the sensing performance is invariant to how the power is split among the streams and depends only on the aggregate spatial covariance, so the communication streams also contribute to sensing.
 
-\textbf{Fisher information matrix (FIM).} For each target, the unknown parameter vector is $\boldsymbol\xi_n=[x_n,\,y_n,\,|\alpha_n|,\,\arg\alpha_n]^T$, where the last two entries are nuisance parameters. The FIM consists of two parts.
+For each target, the unknown parameter vector is $\boldsymbol\xi_n=[x_n,\,y_n,\,|\alpha_n|,\,\arg\alpha_n]^T$, where the last two entries are nuisance parameters. The Fisher information matrix (FIM) consists of two parts.
 
 \emph{Angle/amplitude-phase part.} Define
 \begin{multline}
 \mathbf H_{k,n}=\big[\alpha_{k,n}\partial_x\mathbf a_{k,n},\ \alpha_{k,n}\partial_y\mathbf a_{k,n},\\
-|\alpha_{k,n}|\mathbf a_{k,n},\ j|\alpha_{k,n}|\mathbf a_{k,n}\big]\in\mathbb C^{N_t\times4},
+|\alpha_{k,n}|\mathbf a_{k,n},\ j|\alpha_{k,n}|\mathbf a_{k,n}\big]\in\mathbb C^{N_t\times4}.
 \end{multline}
-then
+The corresponding FIM is
 \begin{equation}
-\mathbf J^{\rm ang}_n=\frac{2N_s}{\sigma_r^2}\sum_{k}\operatorname{Re}\big\{\mathbf H_{k,n}^H\mathbf R_k\mathbf H_{k,n}\big\}.
+\mathbf J^{\rm ang}_n=\frac{2N_s}{\sigma_r^2}\sum_{k\in\mathcal K}\operatorname{Re}\big\{\mathbf H_{k,n}^H\mathbf R_k\mathbf H_{k,n}\big\}.
 \end{equation}
 
-\emph{Time-delay part.} The round-trip delay is $\tau_{k,n}=2d_{k,n}/c$. Assuming a flat spectrum over bandwidth $B$ (effective bandwidth $B_{\rm rms}^2=B^2/12$), the delay-induced information on the horizontal position is
+\emph{Time-delay part.} The round-trip delay is $\tau_{k,n}=2d_{k,n}/c$. Assuming a flat spectrum over bandwidth $B$, the effective bandwidth satisfies $B_{\rm rms}^2=B^2/12$, and the delay-induced information on the horizontal position is
 \begin{equation}
-\mathbf J^{\rm del}_n=\sum_{k}8\pi^2B_{\rm rms}^2\Big(\frac{2}{c}\Big)^2\rho_{k,n}\,\mathbf g_{k,n}\mathbf g_{k,n}^T,
+\mathbf J^{\rm del}_n=\sum_{k\in\mathcal K}8\pi^2B_{\rm rms}^2\Big(\frac{2}{c}\Big)^2\rho_{k,n}\,\mathbf g_{k,n}\mathbf g_{k,n}^T,
 \end{equation}
-with $\mathbf g_{k,n}=(\mathbf q_n-\mathbf p_k)_{xy}/d_{k,n}$, so that
+where $\mathbf g_{k,n}=(\mathbf q_n-\mathbf p_k)_{xy}/d_{k,n}$ is the gradient of $d_{k,n}$ with respect to the horizontal position of the target. The total FIM is therefore
 \begin{equation}
 \mathbf J_n=\mathbf J^{\rm ang}_n+\operatorname{blkdiag}\big(\mathbf J^{\rm del}_n,\ \mathbf 0_{2\times2}\big).
 \end{equation}
 
-\textbf{Sensing metric.} Eliminating the nuisance parameters via the Schur complement, the position CRB of target $n$ is
+The nuisance parameters are eliminated by the Schur complement, since the inverse of the Schur complement equals the upper-left $2\times2$ block of $\mathbf J_n^{-1}$. Hence, the position Cram\'er--Rao bound (CRB) of target $n$ is
 \begin{equation}
 \mathrm{CRB}_n\big(\{\mathbf p_k,\mathbf R_k\}\big)=\big[\mathbf J_n^{-1}\big]_{1,1}+\big[\mathbf J_n^{-1}\big]_{2,2}\ \ [\mathrm{m}^2].
 \end{equation}
-
-\textbf{Remark (Fusion assumption).} Summing the angle term over $k$ before inversion implies that all UAVs share a single pair of nuisance parameters, i.e., coherent fusion. This is an optimistic approximation, since the true $\alpha_{k,n}$ differ across UAVs.
-
-\textbf{Remark (Cone ambiguity).} A ULA resolves only the cone angle. When $\Delta y=0$, the angular gradient becomes parallel to the range gradient, $\mathbf J_n$ becomes singular, and the sign of $y$ cannot be resolved ($\mathrm{CRB}\to\infty$). To avoid numerical divergence, we use the capped metric $\mathrm{CRB}^{\rm c}_n=\min\{\mathrm{CRB}_n,C_{\rm cap}\}$. The ambiguity can be removed by a uniform planar array (UPA) or by introducing array yaw as an additional degree of freedom, which is left for future work.
+Summing the angle term over $k$ before inversion implies that all UAVs share a single pair of nuisance parameters, i.e., coherent fusion. This is an optimistic approximation, since the true $\alpha_{k,n}$ differ across UAVs.
 
 \subsection{UAV Mobility and Safety Constraints}
 The trajectory of each UAV is subject to kinematic and safety constraints:
@@ -262,18 +267,6 @@ The trajectory of each UAV is subject to kinematic and safety constraints:
 &\|\mathbf p_i[t]-\mathbf p_j[t]\|\ge d_{\min},\quad\forall\,i\neq j,
 \end{align}
 where $\mathcal A$ is the horizontal mission area and $d_{\min}$ is the inter-UAV collision-avoidance distance.
-
-\begin{figure}[!t]
-
-\centering
-
-\includegraphics[width=\linewidth]{UNNC.png}
-
-\caption{Illustration of the considered system.}
-
-\label{fig:system}
-
-\end{figure}
 
 \subsection{Assumptions}
 \textbf{Assumptions.} The model relies on the following assumptions, each with its justification.
