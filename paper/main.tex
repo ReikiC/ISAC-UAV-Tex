@@ -259,13 +259,13 @@ where $\mathbf g_{k,n}=(\mathbf q_n-\mathbf p_k)_{xy}/d_{k,n}$ is the gradient o
 \mathbf J_n=\mathbf J^{\rm ang}_n+\operatorname{blkdiag}\big(\mathbf J^{\rm del}_n,\ \mathbf 0_{2\times2}\big).
 \end{equation}
 
-\subsubsection*{Cram\'er--Rao Bound}
+\subsubsection*{Cram\'er--Rao Bound (CRB)}
 
 Partition $\mathbf J_n$ into blocks according to the position and nuisance parameters:
 \begin{equation}
 \mathbf J_n=\begin{bmatrix}\mathbf A_n & \mathbf B_n\\ \mathbf B_n^T & \mathbf C_n\end{bmatrix},
 \end{equation}
-where $\mathbf A_n\in\mathbb R^{2\times2}$ is the position block and already contains the delay-induced term $\mathbf J^{\rm del}_n$, while $\mathbf B_n$ and $\mathbf C_n$ are associated with the nuisance parameters. Eliminating the nuisance parameters via the Schur complement, the position Cram\'er--Rao bound (CRB) of target $n$ is
+where $\mathbf A_n\in\mathbb R^{2\times2}$ is the position block and already contains the delay-induced term $\mathbf J^{\rm del}_n$, while $\mathbf B_n$ and $\mathbf C_n$ are associated with the nuisance parameters. Eliminating the nuisance parameters via the Schur complement, the position CRB of target $n$ is
 \begin{equation}
 \mathrm{CRB}_n\big(\{\mathbf p_k,\mathbf R_k\}\big)=\operatorname{tr}\!\Big[\big(\mathbf A_n-\mathbf B_n\mathbf C_n^{-1}\mathbf B_n^T\big)^{-1}\Big]\ \ [\mathrm{m}^2].
 \end{equation}
