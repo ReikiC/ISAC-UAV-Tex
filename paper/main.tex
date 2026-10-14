@@ -173,20 +173,23 @@ where $a$ and $b$ are environment-dependent constants.
 
 Let $\mathbf p_k$ and $\mathbf u_m$ denote the positions of UAV $k$ and user $m$, respectively. The distance between them is $d_{k,m}=\max\{\|\mathbf p_k-\mathbf u_m\|,d_0\}$, where $d_0$ is the reference distance, and the reference channel gain is $\beta_0=(\lambda/4\pi d_0)^2$. The LoS/NLoS-weighted average path-loss gain is then given by
 \begin{equation}
-\bar\beta_{k,m}=P_{\rm LoS}\,\beta_0\Big(\frac{d_0}{d_{k,m}}\Big)^{\alpha_{\rm L}} +\big(1-P_{\rm LoS}\big)\beta_0\Big(\frac{d_0}{d_{k,m}}\Big)^{\alpha_{\rm N}},
+\bar\beta_{k,m}=P_{\rm LoS}\,\beta_0\Big(\frac{d_0}{d_{k,m}}\Big)^{\eta_{\rm L}} +\big(1-P_{\rm LoS}\big)\beta_0\Big(\frac{d_0}{d_{k,m}}\Big)^{\eta_{\rm N}},
 \end{equation}
-where $\alpha_{\rm L}<\alpha_{\rm N}$ are the path-loss exponents of the LoS and NLoS links, respectively.
+where $\eta_{\rm L}<\eta_{\rm N}$ are the path-loss exponents of the LoS and NLoS links, respectively.
 
-The channel from UAV $k$ to user $m$ follows a Rician model:
+The channel from UAV $k$ to user $m$ follows a Rician fading model:
 \begin{equation}
 \mathbf h_{k,m}=\sqrt{\frac{\kappa\bar\beta_{k,m}}{\kappa+1}}\, \mathbf a(\theta_{k,m},\phi_{k,m}) +\sqrt{\frac{\bar\beta_{k,m}}{\kappa+1}}\,\mathbf g_{k,m},
 \end{equation}
-where $\kappa$ is the Rician $K$-factor and $\mathbf g_{k,m}\sim\mathcal{CN}(\mathbf 0,\mathbf I_{N_t})$ is the NLoS scattering component. The ULA steering vector $\mathbf a(\theta,\phi)$ is given by
-\begin{equation}
-[\mathbf a(\theta,\phi)]_n=\exp\!\big(j\pi\, n\cos\phi\cos\theta\big), \quad n=0,\dots,N_t-1,
-\end{equation}
-where the antenna spacing is designed as half the carrier wavelength, i.e., $d_a=\lambda/2$.
+where $\kappa$ is the Rician $K$-factor, and $\mathbf g_{k,m}\sim\mathcal{CN}(\mathbf 0,\mathbf I_{N_t})$ represents the NLoS scattering component.
 
+The ULA is mounted along the $x$-axis with an inter-element spacing of $d_a=\lambda/2$. The steering vector $\mathbf a(\theta,\phi)$ is therefore expressed as
+\begin{equation}
+[\mathbf a(\theta,\phi)]_n=\exp\!\big(j\pi\, n\cos\phi\cos\theta\big), \quad n=0,\dots,N_t-1.
+\end{equation}
+Here, $\theta_{k,m}$ and $\phi_{k,m}$ denote the azimuth and elevation angles of departure, respectively, measured at the UAV. The azimuth angle is measured from the positive $x$-axis, while the elevation angle is negative for downward departure directions. 
+
+% Note that $\phi_{k,m}$ differs from the ground-side elevation angle $\theta_{\rm el}$ used in the LoS probability model. For the same link, these two angles satisfy $\phi_{k,m}=-\theta_{\rm el}$.
 
 \subsection{Transmit Signal and Downlink Communication}
 
