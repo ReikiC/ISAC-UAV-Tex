@@ -179,29 +179,35 @@ where $\kappa$ is the Rician $K$-factor and $\mathbf g_{k,m}\sim\mathcal{CN}(\ma
 \end{equation}
 where the antenna spacing is designed as half the carrier wavelength, i.e., $d_a=\lambda/2$.
 
+
 \subsection{Transmit Signal and Downlink Communication}
-UAV $k$ transmits
+
+UAV $k$ transmits the signal
 \begin{equation}
 \mathbf x_k=\sum_{j=1}^{M}\mathbf w_{k,j}s_j+\mathbf w_{k,r}s_r,
 \end{equation}
-where $\mathbf w_{k,j}\in\mathbb C^{N_t}$ is the communication beamformer for user $j$, $\mathbf w_{k,r}$ is the dedicated sensing beamformer, $s_j$ is the data symbol of user $j$, and $s_r$ is a known probing waveform. The symbols satisfy $\mathbb{E}[s_js_i^*]=\delta_{ji}$, $\mathbb{E}[s_js_r^*]=0$, and $\mathbb{E}[|s_r|^2]=1$. Each UAV maintains one stream per user; streams of unserved users are driven to zero power, so the dimension of the decision space is independent of the association.
+where $\mathbf w_{k,j}\in\mathbb C^{N_t}$ is the communication beamformer for user $j$, $\mathbf w_{k,r}\in\mathbb C^{N_t}$ is the dedicated sensing beamformer, $s_j$ is the data symbol of user $j$, and $s_r$ is a known probing waveform. The symbols satisfy $\mathbb{E}[s_js_i^*]=\delta_{ji}$, $\mathbb{E}[s_js_r^*]=0$, and $\mathbb{E}[|s_r|^2]=1$. 
 
-\textbf{Transmit covariance and power constraint.} Under the above symbol statistics,
+Under the above symbol statistics, the transmit covariance matrix of UAV $k$ is
 \begin{equation}
 \mathbf R_k=\mathbb{E}[\mathbf x_k\mathbf x_k^H]=\sum_{j=1}^{M}\mathbf w_{k,j}\mathbf w_{k,j}^H+\mathbf w_{k,r}\mathbf w_{k,r}^H\succeq\mathbf 0,
 \end{equation}
+and the transmit power of each UAV is limited by
 \begin{equation}
-\operatorname{tr}(\mathbf R_k)\le P_{\max}.
+\operatorname{tr}(\mathbf R_k)\le P_{\max},\quad \forall k\in\mathcal K.
 \end{equation}
 
-\textbf{SINR and achievable rate.} The desired signal power of user $m$ is $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$, where $k(m)$ denotes the serving UAV of user $m$. The interference comprises (i) multiuser interference (MUI) from the other streams of the serving UAV, (ii) inter-UAV interference from all communication streams of non-serving UAVs, and (iii) sensing-induced interference from the sensing beams of all UAVs:
+Let $k(m)$ denote the serving UAV of user $m$. The desired signal power of user $m$ is $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$. The interference at user $m$ consists of three parts: (i) multiuser interference (MUI) from the other communication streams of the serving UAV, (ii) inter-UAV interference from all communication streams of the non-serving UAVs, and (iii) sensing-induced interference from the sensing beams of all UAVs, i.e.,
 \begin{multline}
 I_m=\sum_{k\in\mathcal K}\sum_{j\in\mathcal M}\big|\mathbf h_{k,m}^H\mathbf w_{k,j}\big|^2\,\mathbf 1\{(k,j)\neq(k(m),m)\}\\
-+\sum_{k\in\mathcal K}\big|\mathbf h_{k,m}^H\mathbf w_{k,r}\big|^2,
++\sum_{k\in\mathcal K}\big|\mathbf h_{k,m}^H\mathbf w_{k,r}\big|^2.
 \end{multline}
+The received SINR and the achievable rate of user $m$ are then given by
 \begin{equation}
-\gamma_m=\frac{S_m}{\sigma^2+I_m},\qquad R_m=B\log_2(1+\gamma_m).
+\gamma_m=\frac{S_m}{\sigma^2+I_m},\qquad R_m=B\log_2(1+\gamma_m),
 \end{equation}
+where $\sigma^2$ is the noise power and $B$ is the system bandwidth.
+
 
 \subsection{Sensing Model}
 \textbf{Echo model.} The reflection coefficient of target $n$ with respect to UAV $k$ is
