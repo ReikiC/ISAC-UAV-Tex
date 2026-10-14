@@ -161,7 +161,7 @@ placeholder
 
 We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:system}. The network consists of $K$ UAVs ($\mathcal K=\{1,2,\ldots,K\}$), $M$ ground users ($\mathcal M$), $N$ static ground targets ($\mathcal N$), and a central controller (CC) hosted by a leader UAV.
 
-The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. Every ground user and target is considered static and equipped with a single antenna. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
+The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. All ground users are static and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
 
 \subsection{A2G mmWave Channel Model}
 
@@ -192,9 +192,9 @@ where the antenna spacing is designed as half the carrier wavelength, i.e., $d_a
 
 UAV $k$ transmits the signal
 \begin{equation}
-\mathbf x_k=\sum_{j=1}^{M}\mathbf w_{k,j}s_j+\mathbf w_{k,r}s_r,
+\mathbf x_k=\sum_{j=1}^{M}\mathbf w_{k,j}s_{k,j}+\mathbf w_{k,r}s_{k,r},
 \end{equation}
-where $\mathbf w_{k,j}\in\mathbb C^{N_t}$ is the communication beamformer for user $j$, $\mathbf w_{k,r}\in\mathbb C^{N_t}$ is the dedicated sensing beamformer, $s_j$ is the data symbol of user $j$, and $s_r$ is a known probing waveform. The symbols satisfy $\mathbb{E}[s_js_i^*]=\delta_{ji}$, $\mathbb{E}[s_js_r^*]=0$, and $\mathbb{E}[|s_r|^2]=1$. 
+where $\mathbf w_{k,j}\in\mathbb C^{N_t}$ is the communication beamformer for user $j$, $\mathbf w_{k,r}\in\mathbb C^{N_t}$ is the dedicated sensing beamformer, $s_{k,j}$ is the data symbol of user $j$, and $s_{k,r}$ is a known probing waveform. The symbols satisfy $\mathbb{E}[s_{k,j}s_{k,i}^*]=\delta_{ji}$, $\mathbb{E}[s_{k,j}s_{k,r}^*]=0$, and $\mathbb{E}[|s_{k,r}|^2]=1$. Moreover, streams from different UAVs are mutually uncorrelated (no joint transmission), i.e., $\mathbb{E}[s_{k,\ell}s_{k',\ell'}^*]=0$ for $k\neq k'$ and any $\ell,\ell'\in\{1,\ldots,M,r\}$.
 
 Under the above symbol statistics, the transmit covariance matrix of UAV $k$ is
 \begin{equation}
@@ -222,7 +222,9 @@ The reflection coefficient of target $n$ with respect to UAV $k$ is
 \begin{equation}
 \alpha_{k,n}=\sqrt{\frac{\lambda^2\sigma_{\rm rcs}}{(4\pi)^3d_{k,n}^4}}\;e^{j\psi_{k,n}},
 \end{equation}
-where $\sigma_{\rm rcs}$ is the radar cross-section (RCS), $d_{k,n}=\|\mathbf q_n-\mathbf p_k\|$ is the distance between UAV $k$ and target $n$ located at $\mathbf q_n$, the factor $d_{k,n}^{-4}$ accounts for the two-way path loss, and $\psi_{k,n}$ is an unknown phase. After matched filtering with each known symbol and coherent integration over $N_s=BT_s$ samples, where $T_s$ is the integration time, the observation vector stacked over the $M{+}1$ streams is
+where $\sigma_{\rm rcs}$ is the radar cross-section (RCS), $d_{k,n}=\|\mathbf q_n-\mathbf p_k\|$ is the distance between UAV $k$ and target $n$ located at $\mathbf q_n$, the factor $d_{k,n}^{-4}$ accounts for the two-way path loss, and $\psi_{k,n}$ is an unknown phase. 
+
+Each UAV knows the symbols it transmits and uses them as matched-filter references. By the mutual uncorrelatedness of the transmit streams, these symbol sequences, including those transmitted by different UAVs, are approximately orthogonal over the $N_s=BT_s$ samples of coherent integration, where $T_s$ is the integration time, so that each stream is isolated by its matched filter. The observation vector stacked over the $M{+}1$ streams is then
 \begin{equation}
 \mathbf y_{k,n}=\sqrt{N_s}\,\alpha_{k,n}\mathbf W_k^H\mathbf a(\theta_{k,n},\phi_{k,n})+\mathbf z,
 \end{equation}
