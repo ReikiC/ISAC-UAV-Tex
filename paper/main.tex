@@ -151,38 +151,33 @@ placeholder
 
 \subsection{System Description}
 
-We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:system}. It consists of $K$ UAVs ($\mathcal K={1,2,\ldots,K}$ ), $M$  ground users ($\mathcal M$), $N$ static ground targets ($\mathcal N$), and a central controller (CC) which served by leader UAV.
+We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:system}. The network consists of $K$ UAVs ($\mathcal K=\{1,2,\ldots,K\}$), $M$ ground users ($\mathcal M$), $N$ static ground targets ($\mathcal N$), and a central controller (CC) hosted by a leader UAV.
 
-The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and fly at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. Every ground user and target is considered static and equipped with a single antenna. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
+The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. Every ground user and target is considered static and equipped with a single antenna. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
 
 \subsection{A2G mmWave Channel Model}
-\textbf{Probabilistic LoS model.} Let $\theta_{\rm el}$ denote the elevation angle (in degrees) of the UAV as seen from the ground node. The LoS probability follows the sigmoid model of Al-Hourani \emph{et al.}:
-\begin{equation}
-P_{\rm LoS}(\theta_{\rm el})=\frac{1}{1+a\exp\!\big(-b(\theta_{\rm el}-a)\big)}
-\end{equation}
-where $a,b$ are environment-dependent constants.
 
-\textbf{Large-scale fading.} With $d_{k,m}=\max\{\|\mathbf p_k-\mathbf u_m\|,d_0\}$ and reference gain $\beta_0=(\lambda/4\pi d_0)^2$, the LoS/NLoS-weighted average path-loss gain is
+Let $\theta_{\rm el}$ denote the elevation angle (in degrees) of the UAV as seen from a ground node. The LoS probability follows the sigmoid model of Al-Hourani:
+\begin{equation}
+P_{\rm LoS}(\theta_{\rm el})=\frac{1}{1+a\exp\!\big(-b(\theta_{\rm el}-a)\big)},
+\end{equation}
+where $a$ and $b$ are environment-dependent constants.
+
+Let $\mathbf p_k$ and $\mathbf u_m$ denote the positions of UAV $k$ and user $m$, respectively. The distance between them is $d_{k,m}=\max\{\|\mathbf p_k-\mathbf u_m\|,d_0\}$, where $d_0$ is the reference distance, and the reference channel gain is $\beta_0=(\lambda/4\pi d_0)^2$. The LoS/NLoS-weighted average path-loss gain is then given by
 \begin{equation}
 \bar\beta_{k,m}=P_{\rm LoS}\,\beta_0\Big(\frac{d_0}{d_{k,m}}\Big)^{\alpha_{\rm L}} +\big(1-P_{\rm LoS}\big)\beta_0\Big(\frac{d_0}{d_{k,m}}\Big)^{\alpha_{\rm N}},
 \end{equation}
-where $\alpha_{\rm L}<\alpha_{\rm N}$ are the LoS and NLoS path-loss exponents.
- 
-\textbf{Small-scale fading.} The channel from UAV $k$ to user $m$ follows a Rician model:
+where $\alpha_{\rm L}<\alpha_{\rm N}$ are the path-loss exponents of the LoS and NLoS links, respectively.
+
+The channel from UAV $k$ to user $m$ follows a Rician model:
 \begin{equation}
 \mathbf h_{k,m}=\sqrt{\frac{\kappa\bar\beta_{k,m}}{\kappa+1}}\, \mathbf a(\theta_{k,m},\phi_{k,m}) +\sqrt{\frac{\bar\beta_{k,m}}{\kappa+1}}\,\mathbf g_{k,m},
 \end{equation}
-with $\mathbf g_{k,m}\sim\mathcal{CN}(\mathbf 0,\mathbf I_{N_t})$ and Rician $K$-factor $\kappa$. 
-
-ULA steering vector
+where $\kappa$ is the Rician $K$-factor and $\mathbf g_{k,m}\sim\mathcal{CN}(\mathbf 0,\mathbf I_{N_t})$ is the NLoS scattering component. The ULA steering vector $\mathbf a(\theta,\phi)$ is given by
 \begin{equation}
-[\mathbf a(\theta,\phi)]_n=\exp\!\Big(j2\pi\frac{d_a}{\lambda}\,n\cos\phi\cos\theta\Big), \quad n=0,\dots,N_t-1.
+[\mathbf a(\theta,\phi)]_n=\exp\!\big(j\pi\, n\cos\phi\cos\theta\big), \quad n=0,\dots,N_t-1,
 \end{equation}
-
-\textbf{notes for steering vector.} 
-The steering vector is \emph{not} power-normalized, i.e., $\|\mathbf a\|^2=N_t$, so that $\mathbb{E}\|\mathbf h_{k,m}\|^2=\bar\beta_{k,m}N_t$. The array gain is thus embedded in the channel, and $\|\mathbf w\|^2$ equals the actual transmit power of a beam.
- 
-\textbf{Remark.} We adopt an ``expected-channel'' approximation: the LoS/NLoS states are averaged in the large-scale gain before the Rician component is applied. A strict two-state model yields a bimodal received-power distribution, and by Jensen's inequality the present model slightly overestimates SNR-concave metrics such as the ergodic rate. We validate the approximation against the two-state model via Monte Carlo simulation.
+where the antenna spacing is designed as half the carrier wavelength, i.e., $d_a=\lambda/2$.
 
 \subsection{Transmit Signal and Downlink Communication}
 UAV $k$ transmits
