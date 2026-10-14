@@ -218,6 +218,8 @@ where $\sigma^2$ is the noise power and $B$ is the system bandwidth.
 
 \subsection{Sensing Model}
 
+\subsubsection*{Echo and Observation Model}
+
 The reflection coefficient of target $n$ with respect to UAV $k$ is
 \begin{equation}
 \alpha_{k,n}=\sqrt{\frac{\lambda^2\sigma_{\rm rcs}}{(4\pi)^3d_{k,n}^4}}\;e^{j\psi_{k,n}},
@@ -233,6 +235,8 @@ where $\mathbf W_k=[\mathbf w_{k,1},\dots,\mathbf w_{k,M},\mathbf w_{k,r}]$ and 
 \rho_{k,n}=\frac{N_s|\alpha_{k,n}|^2\,\mathbf a_{k,n}^H\mathbf R_k\mathbf a_{k,n}}{\sigma_r^2},
 \end{equation}
 where $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$. This expression reveals the coupling between sensing and communication: the sensing performance is invariant to how the power is split among the streams and depends only on the aggregate spatial covariance, so the communication streams also contribute to sensing.
+
+\subsubsection*{Fisher Information Matrix}
 
 For each target, the unknown parameter vector is $\boldsymbol\xi_n=[x_n,\,y_n,\,|\alpha_n|,\,\arg\alpha_n]^T$, where the last two entries are nuisance parameters. The Fisher information matrix (FIM) consists of two parts.
 
@@ -255,9 +259,15 @@ where $\mathbf g_{k,n}=(\mathbf q_n-\mathbf p_k)_{xy}/d_{k,n}$ is the gradient o
 \mathbf J_n=\mathbf J^{\rm ang}_n+\operatorname{blkdiag}\big(\mathbf J^{\rm del}_n,\ \mathbf 0_{2\times2}\big).
 \end{equation}
 
-The nuisance parameters are eliminated by the Schur complement, since the inverse of the Schur complement equals the upper-left $2\times2$ block of $\mathbf J_n^{-1}$. Hence, the position Cram\'er--Rao bound (CRB) of target $n$ is
+\subsubsection*{Cram\'er--Rao Bound}
+
+Partition $\mathbf J_n$ into blocks according to the position and nuisance parameters:
 \begin{equation}
-\mathrm{CRB}_n\big(\{\mathbf p_k,\mathbf R_k\}\big)=\big[\mathbf J_n^{-1}\big]_{1,1}+\big[\mathbf J_n^{-1}\big]_{2,2}\ \ [\mathrm{m}^2].
+\mathbf J_n=\begin{bmatrix}\mathbf A_n & \mathbf B_n\\ \mathbf B_n^T & \mathbf C_n\end{bmatrix},
+\end{equation}
+where $\mathbf A_n\in\mathbb R^{2\times2}$ is the position block and already contains the delay-induced term $\mathbf J^{\rm del}_n$, while $\mathbf B_n$ and $\mathbf C_n$ are associated with the nuisance parameters. Eliminating the nuisance parameters via the Schur complement, the position Cram\'er--Rao bound (CRB) of target $n$ is
+\begin{equation}
+\mathrm{CRB}_n\big(\{\mathbf p_k,\mathbf R_k\}\big)=\operatorname{tr}\!\Big[\big(\mathbf A_n-\mathbf B_n\mathbf C_n^{-1}\mathbf B_n^T\big)^{-1}\Big]\ \ [\mathrm{m}^2].
 \end{equation}
 Summing the angle term over $k$ before inversion implies that all UAVs share a single pair of nuisance parameters, i.e., coherent fusion. This is an optimistic approximation, since the true $\alpha_{k,n}$ differ across UAVs.
 
