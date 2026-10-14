@@ -234,7 +234,7 @@ where $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$. This expres
 
 For each target, the unknown parameter vector is $\boldsymbol\xi_n=[x_n,\,y_n,\,|\alpha_n|,\,\arg\alpha_n]^T$, where the last two entries are nuisance parameters. The Fisher information matrix (FIM) consists of two parts.
 
-\emph{Angle/amplitude-phase part.} Define
+Define $\mathbf H_{k,n}\in\mathbb C^{N_t\times4}$ as the Jacobian matrix of the received signal manifold with respect to the unknown parameter vector $\boldsymbol\xi_n$:
 \begin{multline}
 \mathbf H_{k,n}=\big[\alpha_{k,n}\partial_x\mathbf a_{k,n},\ \alpha_{k,n}\partial_y\mathbf a_{k,n},\\
 |\alpha_{k,n}|\mathbf a_{k,n},\ j|\alpha_{k,n}|\mathbf a_{k,n}\big]\in\mathbb C^{N_t\times4}.
@@ -244,7 +244,7 @@ The corresponding FIM is
 \mathbf J^{\rm ang}_n=\frac{2N_s}{\sigma_r^2}\sum_{k\in\mathcal K}\operatorname{Re}\big\{\mathbf H_{k,n}^H\mathbf R_k\mathbf H_{k,n}\big\}.
 \end{equation}
 
-\emph{Time-delay part.} The round-trip delay is $\tau_{k,n}=2d_{k,n}/c$. Assuming a flat spectrum over bandwidth $B$, the effective bandwidth satisfies $B_{\rm rms}^2=B^2/12$, and the delay-induced information on the horizontal position is
+The round-trip delay is $\tau_{k,n}=2d_{k,n}/c$. Assuming a flat spectrum over bandwidth $B$, the effective bandwidth satisfies $B_{\rm rms}^2=B^2/12$, and the delay-induced information on the horizontal position is
 \begin{equation}
 \mathbf J^{\rm del}_n=\sum_{k\in\mathcal K}8\pi^2B_{\rm rms}^2\Big(\frac{2}{c}\Big)^2\rho_{k,n}\,\mathbf g_{k,n}\mathbf g_{k,n}^T,
 \end{equation}
