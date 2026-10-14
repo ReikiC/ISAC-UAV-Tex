@@ -182,17 +182,85 @@ ULA steering vector
 \textbf{notes for steering vector.} 
 The steering vector is \emph{not} power-normalized, i.e., $\|\mathbf a\|^2=N_t$, so that $\mathbb{E}\|\mathbf h_{k,m}\|^2=\bar\beta_{k,m}N_t$. The array gain is thus embedded in the channel, and $\|\mathbf w\|^2$ equals the actual transmit power of a beam.
  
-\textbf{Remark.} We adopt an ''expected-channel'' approximation: the LoS/NLoS states are averaged in the large-scale gain before the Rician component is applied. A strict two-state model yields a bimodal received-power distribution, and by Jensen's inequality the present model slightly overestimates SNR-concave metrics such as the ergodic rate. We validate the approximation against the two-state model via Monte Carlo simulation.
+\textbf{Remark.} We adopt an ``expected-channel'' approximation: the LoS/NLoS states are averaged in the large-scale gain before the Rician component is applied. A strict two-state model yields a bimodal received-power distribution, and by Jensen's inequality the present model slightly overestimates SNR-concave metrics such as the ergodic rate. We validate the approximation against the two-state model via Monte Carlo simulation.
 
-\subsection{Model Details}
-
-Define the mathematical model and the key performance metric, e.g.,
-\begin{equation}\label{eq:metric}
-y = f(\mathbf{x}) + n,
+\subsection{Transmit Signal and Downlink Communication}
+UAV $k$ transmits
+\begin{equation}
+\mathbf x_k=\sum_{j=1}^{M}\mathbf w_{k,j}s_j+\mathbf w_{k,r}s_r,
 \end{equation}
-where $\mathbf{x}$ denotes the decision variable, $n$ denotes the noise or uncertainty term, and $f(\cdot)$ denotes the system response.
+where $\mathbf w_{k,j}\in\mathbb C^{N_t}$ is the communication beamformer for user $j$, $\mathbf w_{k,r}$ is the dedicated sensing beamformer, $s_j$ is the data symbol of user $j$, and $s_r$ is a known probing waveform. The symbols satisfy $\mathbb{E}[s_js_i^*]=\delta_{ji}$, $\mathbb{E}[s_js_r^*]=0$, and $\mathbb{E}[|s_r|^2]=1$. Each UAV maintains one stream per user; streams of unserved users are driven to zero power, so the dimension of the decision space is independent of the association.
 
-Collect the main symbols in a notation table if there are more than a dozen of them; otherwise define each symbol at its first appearance, as above. Complete the model with the operational constraints that will appear as $f_i(\cdot)$ and $h_j(\cdot)$ in problem~\eqref{opt:main} below.
+\textbf{Transmit covariance and power constraint.} Under the above symbol statistics,
+\begin{equation}
+\mathbf R_k=\mathbb{E}[\mathbf x_k\mathbf x_k^H]=\sum_{j=1}^{M}\mathbf w_{k,j}\mathbf w_{k,j}^H+\mathbf w_{k,r}\mathbf w_{k,r}^H\succeq\mathbf 0,
+\end{equation}
+\begin{equation}
+\operatorname{tr}(\mathbf R_k)\le P_{\max}.
+\end{equation}
+
+\textbf{SINR and achievable rate.} The desired signal power of user $m$ is $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$, where $k(m)$ denotes the serving UAV of user $m$. The interference comprises (i) multiuser interference (MUI) from the other streams of the serving UAV, (ii) inter-UAV interference from all communication streams of non-serving UAVs, and (iii) sensing-induced interference from the sensing beams of all UAVs:
+\begin{multline}
+I_m=\sum_{k\in\mathcal K}\sum_{j\in\mathcal M}\big|\mathbf h_{k,m}^H\mathbf w_{k,j}\big|^2\,\mathbf 1\{(k,j)\neq(k(m),m)\}\\
++\sum_{k\in\mathcal K}\big|\mathbf h_{k,m}^H\mathbf w_{k,r}\big|^2,
+\end{multline}
+\begin{equation}
+\gamma_m=\frac{S_m}{\sigma^2+I_m},\qquad R_m=B\log_2(1+\gamma_m).
+\end{equation}
+
+\subsection{Sensing Model}
+\textbf{Echo model.} The reflection coefficient of target $n$ with respect to UAV $k$ is
+\begin{equation}
+\alpha_{k,n}=\sqrt{\frac{\lambda^2\sigma_{\rm rcs}}{(4\pi)^3d_{k,n}^4}}\;e^{j\psi_{k,n}},
+\end{equation}
+which captures the radar cross-section (RCS), the two-way path loss $d^{-4}$, and an unknown phase $\psi_{k,n}$. After matched filtering with each known symbol and coherent integration over $N_s=BT_s$ samples, the observation vector stacked over the $M{+}1$ streams is
+\begin{equation}
+\mathbf y_{k,n}=\sqrt{N_s}\,\alpha_{k,n}\mathbf W_k^H\mathbf a(\theta_{k,n},\phi_{k,n})+\mathbf z,
+\end{equation}
+with $\mathbf z\sim\mathcal{CN}(\mathbf 0,\sigma_r^2\mathbf I_{M+1})$ and $\mathbf W_k=[\mathbf w_{k,1},\dots,\mathbf w_{k,M},\mathbf w_{k,r}]$. The echo SNR depends on the beamformers only through $\mathbf R_k$:
+\begin{equation}
+\rho_{k,n}=\frac{N_s|\alpha_{k,n}|^2\,\mathbf a_{k,n}^H\mathbf R_k\mathbf a_{k,n}}{\sigma_r^2},
+\end{equation}
+where $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$. This is the entry point of the ISAC coupling: sensing performance is invariant to how power is split among streams and depends only on the aggregate spatial covariance, so communication streams also contribute to sensing.
+
+\textbf{Fisher information matrix (FIM).} For each target, the unknown parameter vector is $\boldsymbol\xi_n=[x_n,\,y_n,\,|\alpha_n|,\,\arg\alpha_n]^T$, where the last two entries are nuisance parameters. The FIM consists of two parts.
+
+\emph{Angle/amplitude-phase part.} Define
+\begin{multline}
+\mathbf H_{k,n}=\big[\alpha_{k,n}\partial_x\mathbf a_{k,n},\ \alpha_{k,n}\partial_y\mathbf a_{k,n},\\
+|\alpha_{k,n}|\mathbf a_{k,n},\ j|\alpha_{k,n}|\mathbf a_{k,n}\big]\in\mathbb C^{N_t\times4},
+\end{multline}
+then
+\begin{equation}
+\mathbf J^{\rm ang}_n=\frac{2N_s}{\sigma_r^2}\sum_{k}\operatorname{Re}\big\{\mathbf H_{k,n}^H\mathbf R_k\mathbf H_{k,n}\big\}.
+\end{equation}
+
+\emph{Time-delay part.} The round-trip delay is $\tau_{k,n}=2d_{k,n}/c$. Assuming a flat spectrum over bandwidth $B$ (effective bandwidth $B_{\rm rms}^2=B^2/12$), the delay-induced information on the horizontal position is
+\begin{equation}
+\mathbf J^{\rm del}_n=\sum_{k}8\pi^2B_{\rm rms}^2\Big(\frac{2}{c}\Big)^2\rho_{k,n}\,\mathbf g_{k,n}\mathbf g_{k,n}^T,
+\end{equation}
+with $\mathbf g_{k,n}=(\mathbf q_n-\mathbf p_k)_{xy}/d_{k,n}$, so that
+\begin{equation}
+\mathbf J_n=\mathbf J^{\rm ang}_n+\operatorname{blkdiag}\big(\mathbf J^{\rm del}_n,\ \mathbf 0_{2\times2}\big).
+\end{equation}
+
+\textbf{Sensing metric.} Eliminating the nuisance parameters via the Schur complement, the position CRB of target $n$ is
+\begin{equation}
+\mathrm{CRB}_n\big(\{\mathbf p_k,\mathbf R_k\}\big)=\big[\mathbf J_n^{-1}\big]_{1,1}+\big[\mathbf J_n^{-1}\big]_{2,2}\ \ [\mathrm{m}^2].
+\end{equation}
+
+\textbf{Remark (Fusion assumption).} Summing the angle term over $k$ before inversion implies that all UAVs share a single pair of nuisance parameters, i.e., coherent fusion. This is an optimistic approximation, since the true $\alpha_{k,n}$ differ across UAVs.
+
+\textbf{Remark (Cone ambiguity).} A ULA resolves only the cone angle. When $\Delta y=0$, the angular gradient becomes parallel to the range gradient, $\mathbf J_n$ becomes singular, and the sign of $y$ cannot be resolved ($\mathrm{CRB}\to\infty$). To avoid numerical divergence, we use the capped metric $\mathrm{CRB}^{\rm c}_n=\min\{\mathrm{CRB}_n,C_{\rm cap}\}$. The ambiguity can be removed by a uniform planar array (UPA) or by introducing array yaw as an additional degree of freedom, which is left for future work.
+
+\subsection{UAV Mobility and Safety Constraints}
+The trajectory of each UAV is subject to kinematic and safety constraints:
+\begin{align}
+&\|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t,\\
+&z_{\min}\le z_k[t]\le z_{\max},\quad (x_k[t],y_k[t])\in\mathcal A,\\
+&\|\mathbf p_i[t]-\mathbf p_j[t]\|\ge d_{\min},\quad\forall\,i\neq j,
+\end{align}
+where $\mathcal A$ is the horizontal mission area and $d_{\min}$ is the inter-UAV collision-avoidance distance.
 
 \begin{figure}[!t]
 
@@ -206,8 +274,7 @@ Collect the main symbols in a notation table if there are more than a dozen of t
 
 \end{figure}
 
-\textbf{Entities and their roles.} \emph{UAVs} are the only active transmitters. Each UAV is equipped with an $N_t$-element ULA aligned with the $+x$ axis and flies at altitude $z_k[t]\in[z_{\min},z_{\max}]$. In every slot it transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. \emph{Users} at $\mathbf u_m=(x_m,y_m,0)^T$ decode their own data stream and treat all other received signals, including the sensing stream, as interference. \emph{Targets} at $\mathbf q_n=(x_n,y_n,0)^T$ are passive scatterers with unknown horizontal position $(x_n,y_n)$; they neither transmit nor cooperate. The \emph{CC} (e.g., a ground station or a leader UAV) collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs.
-
+\subsection{Assumptions}
 \textbf{Assumptions.} The model relies on the following assumptions, each with its justification.
 \begin{itemize}
   \item \textbf{(A1) Ideal backhaul and global CSI.} Backhaul links are error-free and delay-free, since this isolates the ISAC design from control-plane limitations and yields a performance upper bound.
