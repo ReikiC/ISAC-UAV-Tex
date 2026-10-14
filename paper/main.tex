@@ -163,6 +163,24 @@ We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:syste
 
 The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. All ground users are static and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
 
+\subsection{UAV Mobility and Safety Constraints}
+The trajectory of each UAV is subject to kinematic and safety constraints:
+\begin{align}
+&\|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t,\\
+&z_{\min}\le z_k[t]\le z_{\max},\quad (x_k[t],y_k[t])\in\mathcal A,\\
+&\|\mathbf p_i[t]-\mathbf p_j[t]\|\ge d_{\min},\quad\forall\,i\neq j,
+\end{align}
+where $\mathcal A$ is the horizontal mission area and $d_{\min}$ is the inter-UAV collision-avoidance distance.
+
+\subsection{UAV Mobility and Safety Constraints}
+The trajectory of each UAV is subject to kinematic and safety constraints:
+\begin{align}
+&\|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t,\\
+&z_{\min}\le z_k[t]\le z_{\max},\quad (x_k[t],y_k[t])\in\mathcal A,\\
+&\|\mathbf p_i[t]-\mathbf p_j[t]\|\ge d_{\min},\quad\forall\,i\neq j,
+\end{align}
+where $\mathcal A$ is the horizontal mission area and $d_{\min}$ is the inter-UAV collision-avoidance distance.
+
 \subsection{A2G mmWave Channel Model}
 
 Let $\theta_{\rm el}$ denote the elevation angle (in degrees) of the UAV as seen from a ground node. The LoS probability follows the sigmoid model of Al-Hourani:
@@ -274,30 +292,21 @@ where $\mathbf A_n\in\mathbb R^{2\times2}$ is the position block and already con
 \end{equation}
 Summing the angle term over $k$ before inversion implies that all UAVs share a single pair of nuisance parameters, i.e., coherent fusion. This is an optimistic approximation, since the true $\alpha_{k,n}$ differ across UAVs.
 
-\subsection{UAV Mobility and Safety Constraints}
-The trajectory of each UAV is subject to kinematic and safety constraints:
-\begin{align}
-&\|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t,\\
-&z_{\min}\le z_k[t]\le z_{\max},\quad (x_k[t],y_k[t])\in\mathcal A,\\
-&\|\mathbf p_i[t]-\mathbf p_j[t]\|\ge d_{\min},\quad\forall\,i\neq j,
-\end{align}
-where $\mathcal A$ is the horizontal mission area and $d_{\min}$ is the inter-UAV collision-avoidance distance.
-
-\subsection{Assumptions}
-\textbf{Assumptions.} The model relies on the following assumptions, each with its justification.
-\begin{itemize}
-  \item \textbf{(A1) Ideal backhaul and global CSI.} Backhaul links are error-free and delay-free, since this isolates the ISAC design from control-plane limitations and yields a performance upper bound.
-  \item \textbf{(A2) Perfect CSI and position knowledge.} UAV and user positions, and the channels derived from them, are known exactly, because UAV positioning (GNSS/RTK) and pilot-based estimation are accurate relative to the geometry scales considered.
-  \item \textbf{(A3) Block fading.} Channels are constant within a slot and independent across slots, so that one slot corresponds to one beamforming decision and one rate evaluation.
-  \item \textbf{(A4) Expected-channel LoS/NLoS model.} The LoS probability enters through an averaged large-scale gain, because it keeps the channel a smooth function of the UAV position, which is required for gradient-based learning.
-  \item \textbf{(A5) Spatial degrees of freedom.} $M+1\le N_t$, so that each UAV can transmit one stream per user plus one sensing stream without rank limitation.
-  \item \textbf{(A6) Symbol statistics.} Data and probing symbols are zero-mean, unit-power, circularly symmetric, and mutually uncorrelated, because user data are independent and the probing waveform is a deterministic reference, which makes the transmit covariance a sum of beam outer products.
-  \item \textbf{(A7) Separated sensing and communication beams.} The sensing stream is dedicated and the communication streams are not waveform-shared, since this decouples the sensing metric from the data content and exposes a clean power-split tradeoff.
-  \item \textbf{(A8) Static targets with known altitude.} Targets do not move during the mission and lie on the ground plane, so only the horizontal position needs to be estimated.
-  \item \textbf{(A9) Single-channel echo reception with perfect transmit--receive isolation.} Each UAV receives with one channel and suffers no self-interference, because this gives a conservative sensing SNR (no receive-array gain) while avoiding the modeling of full-duplex residual interference.
-  \item \textbf{(A10) Coherent fusion across UAVs.} Echo observations of different UAVs are fused with shared nuisance parameters, which gives an optimistic but tractable CRB for cooperative localization.
-  \item \textbf{(A11) Kinematics.} UAVs move with bounded speed $v_{\max}$, fixed altitude band, and a minimum separation $d_{\min}$; propulsion energy and array yaw are not modeled, because the focus is on the ISAC resource tradeoff rather than on flight energy.
-\end{itemize}
+% \subsection{Assumptions}
+% \textbf{Assumptions.} The model relies on the following assumptions, each with its justification.
+% \begin{itemize}
+%   \item \textbf{(A1) Ideal backhaul and global CSI.} Backhaul links are error-free and delay-free, since this isolates the ISAC design from control-plane limitations and yields a performance upper bound.
+%   \item \textbf{(A2) Perfect CSI and position knowledge.} UAV and user positions, and the channels derived from them, are known exactly, because UAV positioning (GNSS/RTK) and pilot-based estimation are accurate relative to the geometry scales considered.
+%   \item \textbf{(A3) Block fading.} Channels are constant within a slot and independent across slots, so that one slot corresponds to one beamforming decision and one rate evaluation.
+%   \item \textbf{(A4) Expected-channel LoS/NLoS model.} The LoS probability enters through an averaged large-scale gain, because it keeps the channel a smooth function of the UAV position, which is required for gradient-based learning.
+%   \item \textbf{(A5) Spatial degrees of freedom.} $M+1\le N_t$, so that each UAV can transmit one stream per user plus one sensing stream without rank limitation.
+%   \item \textbf{(A6) Symbol statistics.} Data and probing symbols are zero-mean, unit-power, circularly symmetric, and mutually uncorrelated, because user data are independent and the probing waveform is a deterministic reference, which makes the transmit covariance a sum of beam outer products.
+%   \item \textbf{(A7) Separated sensing and communication beams.} The sensing stream is dedicated and the communication streams are not waveform-shared, since this decouples the sensing metric from the data content and exposes a clean power-split tradeoff.
+%   \item \textbf{(A8) Static targets with known altitude.} Targets do not move during the mission and lie on the ground plane, so only the horizontal position needs to be estimated.
+%   \item \textbf{(A9) Single-channel echo reception with perfect transmit--receive isolation.} Each UAV receives with one channel and suffers no self-interference, because this gives a conservative sensing SNR (no receive-array gain) while avoiding the modeling of full-duplex residual interference.
+%   \item \textbf{(A10) Coherent fusion across UAVs.} Echo observations of different UAVs are fused with shared nuisance parameters, which gives an optimistic but tractable CRB for cooperative localization.
+%   \item \textbf{(A11) Kinematics.} UAVs move with bounded speed $v_{\max}$, fixed altitude band, and a minimum separation $d_{\min}$; propulsion energy and array yaw are not modeled, because the focus is on the ISAC resource tradeoff rather than on flight energy.
+% \end{itemize}
 
 \section{Problem Formulation}
 State the task to be solved (e.g., the optimization problem), e.g.,
