@@ -163,7 +163,7 @@ We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:syste
 
 The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. All ground users are static (or under correlated random walk) and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
 
-\subsection{UAV Mobility and Safety Constraints}
+\subsection{Coordinate System and Kinematics}
 The trajectory of each UAV is subject to kinematic and safety constraints:
 \begin{align}
 &\|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t,\\
@@ -172,14 +172,62 @@ The trajectory of each UAV is subject to kinematic and safety constraints:
 \end{align}
 where $\mathcal A$ is the horizontal mission area and $d_{\min}$ is the inter-UAV collision-avoidance distance.
 
-\subsection{UAV Mobility and Safety Constraints}
-The trajectory of each UAV is subject to kinematic and safety constraints:
-\begin{align}
-&\|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t,\\
-&z_{\min}\le z_k[t]\le z_{\max},\quad (x_k[t],y_k[t])\in\mathcal A,\\
-&\|\mathbf p_i[t]-\mathbf p_j[t]\|\ge d_{\min},\quad\forall\,i\neq j,
-\end{align}
-where $\mathcal A$ is the horizontal mission area and $d_{\min}$ is the inter-UAV collision-avoidance distance.
+% \subsection{Coordinate System and Kinematics - Draft}\label{sec:geometry}
+
+% \subsubsection{Coordinate System}
+% All positions are expressed in a common right-handed Cartesian coordinate system, in which the $x$--$y$ plane is horizontal and the $z$-axis points upward. The horizontal mission area is $\mathcal A=[0,L_x]\times[0,L_y]$. The ground users and targets lie on the ground plane, whereas the UAVs fly within the altitude band $[z_{\min},z_{\max}]$. Let $t\in\{0,1,\ldots,T-1\}$ denote the slot index. The positions of UAV $k$, user $m$, and target $n$ are
+% \begin{equation}
+% \mathbf p_k[t]=\big(x_k[t],\,y_k[t],\,z_k[t]\big)^T,\quad
+% \mathbf u_m[t]=\big(x_m[t],\,y_m[t],\,0\big)^T,\quad
+% \mathbf q_n=\big(x_n,\,y_n,\,0\big)^T,
+% \end{equation}
+% respectively. The targets are static, and the users move according to the correlated random walk described in Section~\ref{sec:user_mobility}. Since the ground altitude is known, only the horizontal coordinates of the targets need to be estimated in the sensing task. Throughout the paper, the slot index $[t]$ is omitted whenever no ambiguity arises.
+
+% \subsubsection{Link Geometry}
+% For a link from point $\mathbf o_1$ to point $\mathbf o_2$, let $\boldsymbol\Delta=\mathbf o_2-\mathbf o_1=(\Delta_x,\Delta_y,\Delta_z)^T$. The link distance, azimuth angle, and elevation angle are
+% \begin{align}
+% d&=\|\boldsymbol\Delta\|,\\
+% \theta&=\operatorname{atan2}(\Delta_y,\Delta_x)\in(-\pi,\pi],\\
+% \phi&=\operatorname{atan2}\!\Big(\Delta_z,\sqrt{\Delta_x^2+\Delta_y^2}\Big)\in\Big[-\tfrac{\pi}{2},\tfrac{\pi}{2}\Big],
+% \end{align}
+% where $\theta$ is measured from the positive $x$-axis towards the positive $y$-axis, and $\phi$ is measured from the horizontal plane and is positive upward. Accordingly, $d_{k,m}=\|\mathbf p_k-\mathbf u_m\|$ and $d_{k,n}=\|\mathbf p_k-\mathbf q_n\|$ denote the UAV--user and UAV--target distances, and $(\theta_{k,m},\phi_{k,m})$ and $(\theta_{k,n},\phi_{k,n})$ denote the corresponding departure angles measured at UAV $k$. Because the UAVs always fly above the ground nodes, $\phi_{k,m}<0$ and $\phi_{k,n}<0$, and $d_{k,m}\ge z_{\min}$. In contrast, the LoS probability in Section~\ref{sec:channel} depends on the elevation angle of the UAV seen from the ground node, denoted by $\theta_{\rm el}$ (in degrees). For the same link, the two elevation angles have opposite signs, i.e.,
+% \begin{equation}
+% \theta_{\rm el}=-\phi_{k,m}\cdot\frac{180^\circ}{\pi}\in(0^\circ,90^\circ].
+% \end{equation}
+
+% \subsubsection{Array Orientation}
+% Each UAV is equipped with an $N_t$-element ULA aligned with the $x$-axis, with the $0$-th element as the phase reference. The array orientation is fixed, and the yaw of the UAV is not considered.
+
+% \subsubsection{Time Slots and UAV Kinematics}
+% The mission horizon is divided into $T$ slots of duration $\Delta t$. The UAV and user positions are held constant within a slot, so that the large-scale channel and the sensing geometry of slot $t$ are determined by $\{\mathbf p_k[t]\}$ and $\{\mathbf u_m[t]\}$. Between consecutive slots, the UAV kinematics are
+% \begin{equation}\label{eq:uav_kin}
+% \mathbf p_k[t+1]=\mathbf p_k[t]+\mathbf v_k[t]\,\Delta t,\qquad \|\mathbf v_k[t]\|\le v_{\max},
+% \end{equation}
+% where $\mathbf v_k[t]$ is the velocity of UAV $k$ in slot $t$ and $v_{\max}$ is the maximum speed, which is equivalent to a per-slot displacement bound of $v_{\max}\Delta t$. The trajectories are further subject to the flight-area, altitude, and collision-avoidance constraints
+% \begin{align}
+% &(x_k[t],y_k[t])\in\mathcal A,\quad z_{\min}\le z_k[t]\le z_{\max},\label{eq:area_alt}\\
+% &\|\mathbf p_i[t]-\mathbf p_j[t]\|\ge d_{\min},\quad\forall\, i\neq j,\label{eq:collision}
+% \end{align}
+% where $d_{\min}$ is the minimum inter-UAV distance. Propulsion energy consumption is not modeled in this work.
+
+% \subsubsection{Ground User Mobility}\label{sec:user_mobility}
+% The ground users follow a correlated random walk, which captures the directional persistence of pedestrian or vehicular motion. The horizontal velocity $\mathbf v^{\rm u}_m[t]\in\mathbb R^2$ of user $m$ evolves as a first-order Gauss--Markov process,
+% \begin{equation}\label{eq:user_vel}
+% \tilde{\mathbf v}^{\rm u}_m[t+1]=\zeta\,\mathbf v^{\rm u}_m[t]+\sqrt{1-\zeta^{2}}\,\sigma_{\rm u}\,\boldsymbol\epsilon_m[t],\qquad
+% \boldsymbol\epsilon_m[t]\sim\mathcal N(\mathbf 0,\mathbf I_2),
+% \end{equation}
+% where $\zeta=e^{-\Delta t/\tau_{\rm c}}\in[0,1)$ is the memory coefficient determined by the velocity correlation time $\tau_{\rm c}$, and $\sigma_{\rm u}$ is the per-axis standard deviation of the stationary velocity. The innovations $\boldsymbol\epsilon_m[t]$ are independent across users and slots. The case $\zeta=0$ reduces to an uncorrelated random walk, and $\zeta\to1$ approaches straight-line motion. The speed is capped at $v^{\rm u}_{\max}$ by rescaling,
+% \begin{equation}\label{eq:user_clip}
+% \mathbf v^{\rm u}_m[t+1]=\tilde{\mathbf v}^{\rm u}_m[t+1]\,\min\!\Big\{1,\ \frac{v^{\rm u}_{\max}}{\|\tilde{\mathbf v}^{\rm u}_m[t+1]\|}\Big\},
+% \end{equation}
+% and the horizontal position is updated as
+% \begin{equation}\label{eq:user_pos}
+% \tilde{\mathbf u}_m[t+1]=\big(x_m[t],\,y_m[t]\big)^T+\mathbf v^{\rm u}_m[t]\,\Delta t.
+% \end{equation}
+% To keep the users inside $\mathcal A$, a reflecting boundary is applied to each coordinate $c\in\{x,y\}$ with range $[0,L_c]$: if $\tilde c<0$, then $c[t+1]=-\tilde c$; if $\tilde c>L_c$, then $c[t+1]=2L_c-\tilde c$; and in either case the corresponding component of $\mathbf v^{\rm u}_m[t+1]$ changes sign. Since the per-slot displacement $v^{\rm u}_{\max}\Delta t\ll\min\{L_x,L_y\}$, a single reflection suffices. The initial positions are drawn uniformly over $\mathcal A$, and the initial velocities are drawn from the stationary distribution $\mathcal N(\mathbf 0,\sigma_{\rm u}^2\mathbf I_2)$.
+
+% The users are assumed to be much slower than the UAVs, i.e., $v^{\rm u}_{\max}\ll v_{\max}$, so that the UAVs are able to track them. Unlike the UAV trajectories, the user trajectories are exogenous random processes and are not decision variables. The user positions $\{\mathbf u_m[t]\}$ are known to the CC at the beginning of slot $t$, whereas their future positions are unknown, and only the statistics in \eqref{eq:user_vel}--\eqref{eq:user_pos} are available.
+
 
 \subsection{A2G mmWave Channel Model}
 
