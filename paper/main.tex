@@ -149,19 +149,19 @@ placeholder
 
 \section{System Model}\label{sec:model}
 
-\begin{figure}[!t]
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\linewidth]{UNNC.png}
+\includegraphics[width=\linewidth]{system-io.png}
 \caption{Illustration of the considered system.}
 \label{fig:system}
-\end{figure}
+\end{figure*}
 
 
 \subsection{System Description}
 
 We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:system}. The network consists of $K$ UAVs ($\mathcal K=\{1,2,\ldots,K\}$), $M$ ground users ($\mathcal M$), $N$ static ground targets ($\mathcal N$), and a central controller (CC) hosted by a leader UAV.
 
-The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. All ground users are static and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
+The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. All ground users are static (or under correlated random walk) and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
 
 \subsection{UAV Mobility and Safety Constraints}
 The trajectory of each UAV is subject to kinematic and safety constraints:
