@@ -164,6 +164,7 @@ We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:syste
 The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. All ground users are static (or under correlated random walk) and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
 
 \subsection{Coordinate System and Kinematics}
+\subsubsection{Time Slots and UAV Kinematics}
 The trajectory of each UAV is subject to kinematic and safety constraints:
 \begin{align}
 &\|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t,\\
@@ -210,23 +211,23 @@ where $\mathcal A$ is the horizontal mission area and $d_{\min}$ is the inter-UA
 % \end{align}
 % where $d_{\min}$ is the minimum inter-UAV distance. Propulsion energy consumption is not modeled in this work.
 
-% \subsubsection{Ground User Mobility}\label{sec:user_mobility}
-% The ground users follow a correlated random walk, which captures the directional persistence of pedestrian or vehicular motion. The horizontal velocity $\mathbf v^{\rm u}_m[t]\in\mathbb R^2$ of user $m$ evolves as a first-order Gauss--Markov process,
-% \begin{equation}\label{eq:user_vel}
-% \tilde{\mathbf v}^{\rm u}_m[t+1]=\zeta\,\mathbf v^{\rm u}_m[t]+\sqrt{1-\zeta^{2}}\,\sigma_{\rm u}\,\boldsymbol\epsilon_m[t],\qquad
-% \boldsymbol\epsilon_m[t]\sim\mathcal N(\mathbf 0,\mathbf I_2),
-% \end{equation}
-% where $\zeta=e^{-\Delta t/\tau_{\rm c}}\in[0,1)$ is the memory coefficient determined by the velocity correlation time $\tau_{\rm c}$, and $\sigma_{\rm u}$ is the per-axis standard deviation of the stationary velocity. The innovations $\boldsymbol\epsilon_m[t]$ are independent across users and slots. The case $\zeta=0$ reduces to an uncorrelated random walk, and $\zeta\to1$ approaches straight-line motion. The speed is capped at $v^{\rm u}_{\max}$ by rescaling,
-% \begin{equation}\label{eq:user_clip}
-% \mathbf v^{\rm u}_m[t+1]=\tilde{\mathbf v}^{\rm u}_m[t+1]\,\min\!\Big\{1,\ \frac{v^{\rm u}_{\max}}{\|\tilde{\mathbf v}^{\rm u}_m[t+1]\|}\Big\},
-% \end{equation}
-% and the horizontal position is updated as
-% \begin{equation}\label{eq:user_pos}
-% \tilde{\mathbf u}_m[t+1]=\big(x_m[t],\,y_m[t]\big)^T+\mathbf v^{\rm u}_m[t]\,\Delta t.
-% \end{equation}
-% To keep the users inside $\mathcal A$, a reflecting boundary is applied to each coordinate $c\in\{x,y\}$ with range $[0,L_c]$: if $\tilde c<0$, then $c[t+1]=-\tilde c$; if $\tilde c>L_c$, then $c[t+1]=2L_c-\tilde c$; and in either case the corresponding component of $\mathbf v^{\rm u}_m[t+1]$ changes sign. Since the per-slot displacement $v^{\rm u}_{\max}\Delta t\ll\min\{L_x,L_y\}$, a single reflection suffices. The initial positions are drawn uniformly over $\mathcal A$, and the initial velocities are drawn from the stationary distribution $\mathcal N(\mathbf 0,\sigma_{\rm u}^2\mathbf I_2)$.
+\subsubsection{Ground User Mobility}\label{sec:user_mobility}
+The ground users follow a correlated random walk, which captures the directional persistence of pedestrian or vehicular motion. The horizontal velocity $\mathbf v^{\rm u}_m[t]\in\mathbb R^2$ of user $m$ evolves as a first-order Gauss--Markov process,
+\begin{equation}\label{eq:user_vel}
+\tilde{\mathbf v}^{\rm u}_m[t+1]=\zeta\,\mathbf v^{\rm u}_m[t]+\sqrt{1-\zeta^{2}}\,\sigma_{\rm u}\,\boldsymbol\epsilon_m[t],\qquad
+\boldsymbol\epsilon_m[t]\sim\mathcal N(\mathbf 0,\mathbf I_2),
+\end{equation}
+where $\zeta=e^{-\Delta t/\tau_{\rm c}}\in[0,1)$ is the memory coefficient determined by the velocity correlation time $\tau_{\rm c}$, and $\sigma_{\rm u}$ is the per-axis standard deviation of the stationary velocity. The innovations $\boldsymbol\epsilon_m[t]$ are independent across users and slots. The case $\zeta=0$ reduces to an uncorrelated random walk, and $\zeta\to1$ approaches straight-line motion. The speed is capped at $v^{\rm u}_{\max}$ by rescaling,
+\begin{equation}\label{eq:user_clip}
+\mathbf v^{\rm u}_m[t+1]=\tilde{\mathbf v}^{\rm u}_m[t+1]\,\min\!\Big\{1,\ \frac{v^{\rm u}_{\max}}{\|\tilde{\mathbf v}^{\rm u}_m[t+1]\|}\Big\},
+\end{equation}
+and the horizontal position is updated as
+\begin{equation}\label{eq:user_pos}
+\tilde{\mathbf u}_m[t+1]=\big(x_m[t],\,y_m[t]\big)^T+\mathbf v^{\rm u}_m[t]\,\Delta t.
+\end{equation}
+To keep the users inside $\mathcal A$, a reflecting boundary is applied to each coordinate $c\in\{x,y\}$ with range $[0,L_c]$: if $\tilde c<0$, then $c[t+1]=-\tilde c$; if $\tilde c>L_c$, then $c[t+1]=2L_c-\tilde c$; and in either case the corresponding component of $\mathbf v^{\rm u}_m[t+1]$ changes sign. Since the per-slot displacement $v^{\rm u}_{\max}\Delta t\ll\min\{L_x,L_y\}$, a single reflection suffices. The initial positions are drawn uniformly over $\mathcal A$, and the initial velocities are drawn from the stationary distribution $\mathcal N(\mathbf 0,\sigma_{\rm u}^2\mathbf I_2)$.
 
-% The users are assumed to be much slower than the UAVs, i.e., $v^{\rm u}_{\max}\ll v_{\max}$, so that the UAVs are able to track them. Unlike the UAV trajectories, the user trajectories are exogenous random processes and are not decision variables. The user positions $\{\mathbf u_m[t]\}$ are known to the CC at the beginning of slot $t$, whereas their future positions are unknown, and only the statistics in \eqref{eq:user_vel}--\eqref{eq:user_pos} are available.
+The users are assumed to be much slower than the UAVs, i.e., $v^{\rm u}_{\max}\ll v_{\max}$, so that the UAVs are able to track them. Unlike the UAV trajectories, the user trajectories are exogenous random processes and are not decision variables. The user positions $\{\mathbf u_m[t]\}$ are known to the CC at the beginning of slot $t$, whereas their future positions are unknown, and only the statistics in \eqref{eq:user_vel}--\eqref{eq:user_pos} are available.
 
 
 \subsection{A2G mmWave Channel Model}
@@ -287,7 +288,7 @@ where $\sigma^2$ is the noise power and $B$ is the system bandwidth.
 
 \subsection{Sensing Model}
 
-\subsubsection*{Echo and Observation Model}
+\subsubsection{Echo and Observation Model}
 
 The reflection coefficient of target $n$ with respect to UAV $k$ is
 \begin{equation}
@@ -305,7 +306,7 @@ where $\mathbf W_k=[\mathbf w_{k,1},\dots,\mathbf w_{k,M},\mathbf w_{k,r}]$ and 
 \end{equation}
 where $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$. This expression reveals the coupling between sensing and communication: the sensing performance is invariant to how the power is split among the streams and depends only on the aggregate spatial covariance, so the communication streams also contribute to sensing.
 
-\subsubsection*{Fisher Information Matrix}
+\subsubsection{Fisher Information Matrix}
 
 For each target, the unknown parameter vector is $\boldsymbol\xi_n=[x_n,\,y_n,\,|\alpha_n|,\,\arg\alpha_n]^T$, where the last two entries are nuisance parameters. The Fisher information matrix (FIM) consists of two parts.
 
@@ -328,7 +329,7 @@ where $\mathbf g_{k,n}=(\mathbf q_n-\mathbf p_k)_{xy}/d_{k,n}$ is the gradient o
 \mathbf J_n=\mathbf J^{\rm ang}_n+\operatorname{blkdiag}\big(\mathbf J^{\rm del}_n,\ \mathbf 0_{2\times2}\big).
 \end{equation}
 
-\subsubsection*{Cram\'er--Rao Bound (CRB)}
+\subsubsection{Cram\'er--Rao Bound (CRB)}
 
 Partition $\mathbf J_n$ into blocks according to the position and nuisance parameters:
 \begin{equation}
@@ -403,6 +404,13 @@ State the convergence guarantee of Algorithm~\ref{alg:proposed}, e.g., a monoton
 
 \subsection{Simulation Setup}
 Describe the experimental setup: parameters, baselines, and evaluation metrics. Specify the simulator or dataset, the parameter ranges swept, the baselines chosen together with their citations, and the hardware and runtime environment, so that the results can be reproduced. Unless stated otherwise, each point is averaged over enough random seeds to keep the confidence intervals within the line width of the plots.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\linewidth]{results/demo_env_fig1.png}
+\caption{Placeholder: illustration of the simulation environment.}
+\label{fig:demo_env}
+\end{figure*}
 
 \subsection{Numerical Results}
 Present the results and main findings. Table~\ref{tab:comparison} gives an example of a three-point IEEE-style table.
