@@ -298,13 +298,14 @@ where $\sigma^2$ is the noise power and $B$ is the system bandwidth.
 
 \subsubsection{Echo and Observation Model}
 
-The reflection coefficient of target $n$ with respect to UAV $k$ is
+The UAVs are interconnected by an ultra-fast backhaul link and share a common clock and local oscillator, so that their echo observations can be fused coherently. Each target is modeled as an isotropic point scatterer whose reflectivity does not depend on the observation direction. The reflection coefficient of target $n$ with respect to UAV $k$ is then factorized as
 \begin{equation}
-\alpha_{k,n}=\sqrt{\frac{\lambda^2\sigma_{\rm rcs}}{(4\pi)^3d_{k,n}^4}}\;e^{j\psi_{k,n}},
+\alpha_{k,n}=\kappa_n\,g_{k,n},\qquad
+g_{k,n}=\frac{\lambda}{(4\pi)^{3/2}d_{k,n}^{2}}\,e^{-j4\pi d_{k,n}/\lambda},
 \end{equation}
-where $\sigma_{\rm rcs}$ is the radar cross-section (RCS), $d_{k,n}=\|\mathbf q_n-\mathbf p_k\|$ is the distance between UAV $k$ and target $n$ located at $\mathbf q_n$, the factor $d_{k,n}^{-4}$ accounts for the two-way path loss, and $\psi_{k,n}$ is an unknown phase. 
+where $\kappa_n=\sqrt{\sigma_{{\rm rcs},n}}\,e^{j\psi_n}$ is the unknown complex reflectivity of target $n$, with $\sigma_{{\rm rcs},n}$ the RCS and $\psi_n$ the reflection phase, and $d_{k,n}=\|\mathbf q_n-\mathbf p_k\|$ is the distance between UAV $k$ and target $n$ located at $\mathbf q_n$. The factor $g_{k,n}$ is known: its magnitude accounts for the two-way free-space path loss ($d_{k,n}^{-4}$ in power), and its phase is the round-trip propagation phase, which is deterministic given the geometry and is resolved thanks to the coherent link. Consequently, $|\alpha_{k,n}|^2=\lambda^2\sigma_{{\rm rcs},n}/((4\pi)^3d_{k,n}^4)$, and the only unknown quantity shared by all UAVs is the scalar $\kappa_n$. 
 
-Each UAV knows the symbols it transmits and uses them as matched-filter references. By the mutual uncorrelatedness of the transmit streams, these symbol sequences, including those transmitted by different UAVs, are approximately orthogonal over the $N_s=BT_s$ samples of coherent integration, where $T_s$ is the integration time, so that each stream is isolated by its matched filter. The observation vector stacked over the $M{+}1$ streams is then
+Each UAV knows the symbols it transmits and uses them as matched-filter references. By the mutual uncorrelatedness of the transmit streams, these symbol sequences, including those transmitted by different UAVs, are approximately orthogonal over the $N_s=BT_s$ samples of coherent integration, where $T_s$ is the integration time, so that each stream is isolated by its matched filter. Only monostatic echoes are processed, i.e., UAV $k$ uses the echoes of its own transmission; bistatic echoes of the other UAVs' signals are discarded, which further renders the bound conservative. The observation vector stacked over the $M{+}1$ streams is then
 \begin{equation}
 \mathbf y_{k,n}=\sqrt{N_s}\,\alpha_{k,n}\mathbf W_k^H\mathbf a(\theta_{k,n},\phi_{k,n})+\mathbf z,
 \end{equation}
@@ -316,14 +317,15 @@ where $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$. This expres
 
 \subsubsection{Fisher Information Matrix}
 
-For each target, the unknown parameter vector is $\boldsymbol\xi_n=[x_n,\,y_n,\,|\alpha_n|,\,\arg\alpha_n]^T$, where the last two entries are nuisance parameters. The Fisher information matrix (FIM) consists of two parts.
+For each target, the unknown parameter vector is $\boldsymbol\xi_n=[x_n,\,y_n,\,\ln|\kappa_n|,\,\arg\kappa_n]^T$, where the first two entries are the parameters of interest and the last two are nuisance parameters. Since all UAVs observe the same target, they share a single pair of nuisance parameters. The $\ln|\kappa_n|$ parameterization is used only for notational convenience; any invertible reparameterization of the nuisance parameters leaves the position CRB unchanged.
 
-Define $\mathbf H_{k,n}\in\mathbb C^{N_t\times4}$ as the Jacobian matrix of the received signal manifold with respect to the unknown parameter vector $\boldsymbol\xi_n$:
-\begin{multline}
-\mathbf H_{k,n}=\big[\alpha_{k,n}\partial_x\mathbf a_{k,n},\ \alpha_{k,n}\partial_y\mathbf a_{k,n},\\
-|\alpha_{k,n}|\mathbf a_{k,n},\ j|\alpha_{k,n}|\mathbf a_{k,n}\big]\in\mathbb C^{N_t\times4}.
-\end{multline}
-The corresponding FIM is
+To keep the model tractable and conservative, the dependence of $\alpha_{k,n}$ on the target position is ignored, i.e., $g_{k,n}$ is treated as a known constant when differentiating. In particular, the carrier-phase term $e^{-j4\pi d_{k,n}/\lambda}$ is not exploited for ranging; only the spatial beam pattern and the delay are used to localize the target.
+
+Define $\mathbf H_{k,n}\in\mathbb C^{N_t\times4}$ as the Jacobian of the received signal manifold with respect to $\boldsymbol\xi_n$:
+\begin{equation}
+\mathbf H_{k,n}=\alpha_{k,n}\big[\partial_x\mathbf a_{k,n},\ \partial_y\mathbf a_{k,n},\ \mathbf a_{k,n},\ j\,\mathbf a_{k,n}\big].
+\end{equation}
+All four columns carry the common factor $\alpha_{k,n}$, so its phase cancels in $\mathbf H_{k,n}^H\mathbf R_k\mathbf H_{k,n}$ and only $|\alpha_{k,n}|^2$ remains. The angle-domain FIM is
 \begin{equation}
 \mathbf J^{\rm ang}_n=\frac{2N_s}{\sigma_r^2}\sum_{k\in\mathcal K}\operatorname{Re}\big\{\mathbf H_{k,n}^H\mathbf R_k\mathbf H_{k,n}\big\}.
 \end{equation}
@@ -341,13 +343,15 @@ where $\mathbf g_{k,n}=(\mathbf q_n-\mathbf p_k)_{xy}/d_{k,n}$ is the gradient o
 
 Partition $\mathbf J_n$ into blocks according to the position and nuisance parameters:
 \begin{equation}
-\mathbf J_n=\begin{bmatrix}\mathbf A_n & \mathbf B_n\\ \mathbf B_n^T & \mathbf C_n\end{bmatrix},
+\mathbf J_n=\begin{bmatrix}\mathbf J_{pp,n} & \mathbf J_{p\eta,n}\\ \mathbf J_{p\eta,n}^T & \mathbf J_{\eta\eta,n}\end{bmatrix},
 \end{equation}
-where $\mathbf A_n\in\mathbb R^{2\times2}$ is the position block and already contains the delay-induced term $\mathbf J^{\rm del}_n$, while $\mathbf B_n$ and $\mathbf C_n$ are associated with the nuisance parameters. Eliminating the nuisance parameters via the Schur complement, the position CRB of target $n$ is
+where $\mathbf J_{pp,n}\in\mathbb R^{2\times2}$ is the position block and already contains the delay-induced term $\mathbf J^{\rm del}_n$, while $\mathbf J_{p\eta,n}$ and $\mathbf J_{\eta\eta,n}$ are associated with the nuisance parameters. Eliminating the nuisance parameters via the Schur complement, the position CRB of target $n$ is
 \begin{equation}
-\mathrm{CRB}_n\big(\{\mathbf p_k,\mathbf R_k\}\big)=\operatorname{tr}\!\Big[\big(\mathbf A_n-\mathbf B_n\mathbf C_n^{-1}\mathbf B_n^T\big)^{-1}\Big]\ \ [\mathrm{m}^2].
+\mathrm{CRB}_n\big(\{\mathbf p_k,\mathbf R_k\}\big)=\operatorname{tr}\!\Big[\big(\mathbf J_{pp,n}-\mathbf J_{p\eta,n}\mathbf J_{\eta\eta,n}^{-1}\mathbf J_{p\eta,n}^T\big)^{-1}\Big]\ \ [\mathrm{m}^2].
 \end{equation}
-Summing the angle term over $k$ before inversion implies that all UAVs share a single pair of nuisance parameters, i.e., coherent fusion. This is an optimistic approximation, since the true $\alpha_{k,n}$ differ across UAVs.
+Because the common phase of $\alpha_{k,n}$ cancels in every block, the CRB is independent of the reflection phase $\psi_n$ and of the propagation phases $4\pi d_{k,n}/\lambda$. Hence the coherent-fusion assumption enters only through the shared nuisance pair. Since the position dependence of $\alpha_{k,n}$ is discarded, the resulting bound is conservative with respect to the full signal model, which would additionally exploit the carrier phase and the amplitude variation.
+
+For a single UAV, the position block becomes singular when the target lies in the plane $\Delta y=0$: both the angular and the delay information then act along the $x$-direction, so the $y$-coordinate is unobservable and the ULA cannot distinguish the two sides of its axis. This is a physical limitation rather than a numerical one, and it persists for $K>1$ only if every UAV satisfies $\Delta y=0$.
 
 % \subsection{Assumptions}
 % \textbf{Assumptions.} The model relies on the following assumptions, each with its justification.
