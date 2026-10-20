@@ -169,11 +169,9 @@ placeholder
 
 We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:system}. The network consists of $K$ UAVs ($\mathcal K=\{1,2,\ldots,K\}$), $M$ ground users ($\mathcal M$), $N$ static ground targets ($\mathcal N$), and a central controller (CC) hosted by a leader UAV.
 
-The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. All ground users are static (or under correlated random walk) and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
+The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. All ground users move according to the correlated random walk model in Section~\ref{sec:user_mobility} and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
 
 \subsection{Coordinate System and Kinematics}
-
-% \subsection{Coordinate System and Kinematics - Draft}\label{sec:geometry}
 
 \subsubsection{Coordinate System}
 All positions are expressed in a common right-handed Cartesian coordinate system, in which the $x$--$y$ plane is horizontal and the $z$-axis points upward. The horizontal mission area is $\mathcal A=[0,L_x]\times[0,L_y]$. The ground users and targets lie on the ground plane, whereas the UAVs fly within the altitude band $[z_{\min},z_{\max}]$. Let $t\in\{0,1,\ldots,T-1\}$ denote the slot index. The positions of UAV $k$, user $m$, and target $n$ are
@@ -185,13 +183,13 @@ All positions are expressed in a common right-handed Cartesian coordinate system
 respectively. The targets are static, and the users move according to the correlated random walk described in Section~\ref{sec:user_mobility}. Throughout the paper, the slot index $[t]$ is omitted whenever no ambiguity arises.
 
 \subsubsection{Link Geometry}
-For a link from point $\mathbf o_1$ to point $\mathbf o_2$, let $\boldsymbol\Delta=\mathbf o_2-\mathbf o_1=(\Delta_x,\Delta_y,\Delta_z)^T$. The link distance, azimuth angle, and elevation angle are
+For a link from point $\mathbf o_1$ to point $\mathbf o_2$, let $\mathbf r=\mathbf o_2-\mathbf o_1=(r_x,r_y,r_z)^T$. The link distance, azimuth angle, and elevation angle are
 \begin{align}
-d&=\|\boldsymbol\Delta\|,\\
-\theta&=\operatorname{atan2}(\Delta_y,\Delta_x)\in(-\pi,\pi],\\
-\phi&=\operatorname{atan2}\!\Big(\Delta_z,\sqrt{\Delta_x^2+\Delta_y^2}\Big)\in\Big[-\tfrac{\pi}{2},\tfrac{\pi}{2}\Big],
+d&=\|\mathbf r\|,\\
+\theta&=\operatorname{atan2}(r_y,r_x)\in(-\pi,\pi],\\
+\phi&=\operatorname{atan2}\!\Big(r_z,\sqrt{r_x^2+r_y^2}\Big)\in\Big[-\tfrac{\pi}{2},\tfrac{\pi}{2}\Big],
 \end{align}
-where $\theta$ is measured from the positive $x$-axis towards the positive $y$-axis, and $\phi$ is measured from the horizontal plane and is positive upward. Accordingly, $d_{k,m}=\|\mathbf p_k-\mathbf u_m\|$ and $d_{k,n}=\|\mathbf p_k-\mathbf q_n\|$ denote the UAV--user and UAV--target distances, and $(\theta_{k,m},\phi_{k,m})$ and $(\theta_{k,n},\phi_{k,n})$ denote the corresponding departure angles measured at UAV $k$. Because the UAVs always fly above the ground nodes, $\phi_{k,m}<0$ and $\phi_{k,n}<0$, and $d_{k,m}\ge z_{\min}$. In contrast, the LoS probability in Section~\ref{sec:channel} depends on the elevation angle of the UAV seen from the ground node, denoted by $\theta_{\rm el}$ (in degrees). For the same link, the two elevation angles have opposite signs, i.e.,
+where $\theta$ is measured from the positive $x$-axis towards the positive $y$-axis, and $\phi$ is measured from the horizontal plane and is positive upward. When the link is exactly vertical ($r_x=r_y=0$), $\theta$ is undefined; this event has measure zero and is ignored. Accordingly, $d_{k,m}=\|\mathbf p_k-\mathbf u_m\|$ and $d_{k,n}=\|\mathbf p_k-\mathbf q_n\|$ denote the UAV--user and UAV--target distances, and $(\theta_{k,m},\phi_{k,m})$ and $(\theta_{k,n},\phi_{k,n})$ denote the corresponding departure angles measured at UAV $k$. Because the UAVs always fly above the ground nodes, $\phi_{k,m}<0$ and $\phi_{k,n}<0$, and $d_{k,m}\ge z_{\min}$. In contrast, the LoS probability in Section~\ref{sec:channel} depends on the elevation angle of the UAV seen from the ground node, denoted by $\theta_{\rm el}$ (in degrees). For the same link, the two elevation angles have opposite signs, i.e.,
 \begin{equation}
 \theta_{\rm el}=-\phi_{k,m}\cdot\frac{180^\circ}{\pi}\in(0^\circ,90^\circ].
 \end{equation}
@@ -199,9 +197,9 @@ where $\theta$ is measured from the positive $x$-axis towards the positive $y$-a
 \subsubsection{UAV Kinematics}
 The trajectory of each UAV is subject to kinematic and safety constraints:
 \begin{align}
-&\|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t,\\
-&z_{\min}\le z_k[t]\le z_{\max},\quad (x_k[t],y_k[t])\in\mathcal A,\\
-&\|\mathbf p_i[t]-\mathbf p_j[t]\|\ge d_{\min},\quad\forall\,i\neq j,
+&\|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t,\quad t=0,\ldots,T-2,\\
+&\mathbf p_k[t]\in\mathcal A\times[z_{\min},z_{\max}],\quad t=0,\ldots,T-1,\\
+&\|\mathbf p_k[t]-\mathbf p_{k'}[t]\|\ge d_{\min},\quad\forall\,k\neq k',\ t=0,\ldots,T-1,
 \end{align}
 where $\mathcal A$ is the horizontal mission area and $d_{\min}$ is the inter-UAV collision-avoidance distance.
 
@@ -211,20 +209,29 @@ The ground users follow a correlated random walk, which captures the directional
 \tilde{\mathbf v}^{\rm u}_m[t+1]=\zeta\,\mathbf v^{\rm u}_m[t]+\sqrt{1-\zeta^{2}}\,\sigma_{\rm u}\,\boldsymbol\epsilon_m[t],\qquad
 \boldsymbol\epsilon_m[t]\sim\mathcal N(\mathbf 0,\mathbf I_2),
 \end{equation}
-where $\zeta=e^{-\Delta t/\tau_{\rm c}}\in[0,1)$ is the memory coefficient determined by the velocity correlation time $\tau_{\rm c}$, and $\sigma_{\rm u}$ is the per-axis standard deviation of the stationary velocity. The innovations $\boldsymbol\epsilon_m[t]$ are independent across users and slots. The case $\zeta=0$ reduces to an uncorrelated random walk, and $\zeta\to1$ approaches straight-line motion. The speed is capped at $v^{\rm u}_{\max}$ by rescaling,
+where $\zeta=e^{-\Delta t/\tau_{\rm v}}\in(0,1)$ is the memory coefficient determined by the velocity correlation time $\tau_{\rm v}$, and $\sigma_{\rm u}$ is the per-axis standard deviation of the stationary velocity. The innovations $\boldsymbol\epsilon_m[t]$ are independent across users and slots. In the limit $\tau_{\rm v}\to0$, $\zeta\to0$ and the velocity degenerates into an uncorrelated random walk, whereas $\tau_{\rm v}\to\infty$ yields $\zeta\to1$ and straight-line motion. The speed is capped at $v^{\rm u}_{\max}$ by rescaling,
 \begin{equation}\label{eq:user_clip}
 \mathbf v^{\rm u}_m[t+1]=\tilde{\mathbf v}^{\rm u}_m[t+1]\,\min\!\Big\{1,\ \frac{v^{\rm u}_{\max}}{\|\tilde{\mathbf v}^{\rm u}_m[t+1]\|}\Big\},
 \end{equation}
-and the horizontal position is updated as
+and the two-dimensional horizontal position $\tilde{\mathbf u}_m[t+1]\in\mathbb R^2$ is updated as
 \begin{equation}\label{eq:user_pos}
-\tilde{\mathbf u}_m[t+1]=\big(x_m[t],\,y_m[t]\big)^T+\mathbf v^{\rm u}_m[t]\,\Delta t.
+\tilde{\mathbf u}_m[t+1]=\big(x_m[t],\,y_m[t]\big)^T+\mathbf v^{\rm u}_m[t+1]\,\Delta t.
 \end{equation}
-To keep the users inside $\mathcal A$, a reflecting boundary is applied to each coordinate $c\in\{x,y\}$ with range $[0,L_c]$: if $\tilde c<0$, then $c[t+1]=-\tilde c$; if $\tilde c>L_c$, then $c[t+1]=2L_c-\tilde c$; and in either case the corresponding component of $\mathbf v^{\rm u}_m[t+1]$ changes sign. Since the per-slot displacement $v^{\rm u}_{\max}\Delta t\ll\min\{L_x,L_y\}$, a single reflection suffices. The initial positions are drawn uniformly over $\mathcal A$, and the initial velocities are drawn from the stationary distribution $\mathcal N(\mathbf 0,\sigma_{\rm u}^2\mathbf I_2)$.
+Let $\tilde x_m$ and $\tilde y_m$ denote the two components of $\tilde{\mathbf u}_m[t+1]$. To keep the users inside $\mathcal A$, a reflecting boundary is applied to each coordinate. For the $x$-coordinate, with range $[0,L_x]$,
+\begin{equation}
+x_m[t+1]=
+\begin{cases}
+-\tilde x_m, & \tilde x_m<0,\\
+2L_x-\tilde x_m, & \tilde x_m>L_x,\\
+\tilde x_m, & \text{otherwise},
+\end{cases}
+\end{equation}
+and in the first two cases the $x$-component of $\mathbf v^{\rm u}_m[t+1]$ changes sign. The $y$-coordinate obeys the same rule with $x$, $\tilde x_m$, and $L_x$ replaced by $y$, $\tilde y_m$, and $L_y$. Since the per-slot displacement $v^{\rm u}_{\max}\Delta t\ll\min\{L_x,L_y\}$, a single reflection per coordinate suffices. The initial positions are drawn uniformly over $\mathcal A$, and the initial velocities are drawn from $\mathcal N(\mathbf 0,\sigma_{\rm u}^2\mathbf I_2)$ and capped by the same rescaling as in \eqref{eq:user_clip}; with $v^{\rm u}_{\max}\gtrsim 4\sigma_{\rm u}$, the speed cap and the boundary reflections perturb this distribution only marginally, so that the velocity remains approximately stationary.
 
 The users are assumed to be much slower than the UAVs, i.e., $v^{\rm u}_{\max}\ll v_{\max}$, so that the UAVs are able to track them. Unlike the UAV trajectories, the user trajectories are exogenous random processes and are not decision variables. The user positions $\{\mathbf u_m[t]\}$ are known to the CC at the beginning of slot $t$, whereas their future positions are unknown, and only the statistics in \eqref{eq:user_vel}--\eqref{eq:user_pos} are available.
 
 
-\subsection{A2G mmWave Channel Model}
+\subsection{A2G mmWave Channel Model}\label{sec:channel}
 
 Let $\theta_{\rm el}$ denote the elevation angle (in degrees) of the UAV as seen from a ground node. The LoS probability follows the sigmoid model of Al-Hourani:
 \begin{equation}
@@ -232,21 +239,21 @@ P_{\rm LoS}(\theta_{\rm el})=\frac{1}{1+a\exp\!\big(-b(\theta_{\rm el}-a)\big)},
 \end{equation}
 where $a$ and $b$ are environment-dependent constants.
 
-Let $\mathbf p_k$ and $\mathbf u_m$ denote the positions of UAV $k$ and user $m$, respectively. The distance between them is $d_{k,m}=\max\{\|\mathbf p_k-\mathbf u_m\|,d_0\}$, where $d_0$ is the reference distance, and the reference channel gain is $\beta_0=(\lambda/4\pi d_0)^2$. The LoS/NLoS-weighted average path-loss gain is then given by
+Let $\mathbf p_k$ and $\mathbf u_m$ denote the positions of UAV $k$ and user $m$, respectively, with distance $d_{k,m}=\|\mathbf p_k-\mathbf u_m\|$ as defined in the link geometry. Since the free-space reference model is valid only beyond the reference distance $d_0$, the effective distance is floored at $\bar d_{k,m}=\max\{d_{k,m},d_0\}$, and the reference channel gain is $\beta_0=(\lambda/4\pi d_0)^2$. The LoS/NLoS-weighted average path-loss gain is then given by
 \begin{equation}
-\bar\beta_{k,m}=P_{\rm LoS}\,\beta_0\Big(\frac{d_0}{d_{k,m}}\Big)^{\eta_{\rm L}} +\big(1-P_{\rm LoS}\big)\beta_0\Big(\frac{d_0}{d_{k,m}}\Big)^{\eta_{\rm N}},
+\bar\beta_{k,m}=P_{\rm LoS}\,\beta_0\Big(\frac{d_0}{\bar d_{k,m}}\Big)^{\eta_{\rm L}} +\big(1-P_{\rm LoS}\big)\beta_0\Big(\frac{d_0}{\bar d_{k,m}}\Big)^{\eta_{\rm N}},
 \end{equation}
 where $\eta_{\rm L}<\eta_{\rm N}$ are the path-loss exponents of the LoS and NLoS links, respectively.
 
 The channel from UAV $k$ to user $m$ follows a Rician fading model:
 \begin{equation}
-\mathbf h_{k,m}=\sqrt{\frac{\kappa\bar\beta_{k,m}}{\kappa+1}}\, \mathbf a(\theta_{k,m},\phi_{k,m}) +\sqrt{\frac{\bar\beta_{k,m}}{\kappa+1}}\,\mathbf g_{k,m},
+\mathbf h_{k,m}=\sqrt{\frac{\kappa\bar\beta_{k,m}}{\kappa+1}}\, \mathbf a(\theta_{k,m},\phi_{k,m}) +\sqrt{\frac{\bar\beta_{k,m}}{\kappa+1}}\,\mathbf g^{\rm s}_{k,m},
 \end{equation}
-where $\kappa$ is the Rician $K$-factor, and $\mathbf g_{k,m}\sim\mathcal{CN}(\mathbf 0,\mathbf I_{N_t})$ represents the NLoS scattering component.
+where $\kappa$ is the Rician $K$-factor, and $\mathbf g^{\rm s}_{k,m}\sim\mathcal{CN}(\mathbf 0,\mathbf I_{N_t})$ represents the NLoS scattering component.
 
 The ULA is mounted along the $x$-axis with an inter-element spacing of $d_a=\lambda/2$. The steering vector $\mathbf a(\theta,\phi)$ is therefore expressed as
 \begin{equation}
-[\mathbf a(\theta,\phi)]_n=\exp\!\big(j\pi\, n\cos\phi\cos\theta\big), \quad n=0,\dots,N_t-1.
+[\mathbf a(\theta,\phi)]_i=\exp\!\big(j\pi\, i\cos\phi\cos\theta\big), \quad i=0,\dots,N_t-1.
 \end{equation}
 Here, $\theta_{k,m}$ and $\phi_{k,m}$ denote the azimuth and elevation angles of departure, respectively, measured at the UAV. The azimuth angle is measured from the positive $x$-axis, while the elevation angle is negative for downward departure directions. 
 
@@ -258,7 +265,7 @@ UAV $k$ transmits the signal
 \begin{equation}
 \mathbf x_k=\sum_{j=1}^{M}\mathbf w_{k,j}s_{k,j}+\mathbf w_{k,r}s_{k,r},
 \end{equation}
-where $\mathbf w_{k,j}\in\mathbb C^{N_t}$ is the communication beamformer for user $j$, $\mathbf w_{k,r}\in\mathbb C^{N_t}$ is the dedicated sensing beamformer, $s_{k,j}$ is the data symbol of user $j$, and $s_{k,r}$ is a known probing waveform. The symbols satisfy $\mathbb{E}[s_{k,j}s_{k,i}^*]=\delta_{ji}$, $\mathbb{E}[s_{k,j}s_{k,r}^*]=0$, and $\mathbb{E}[|s_{k,r}|^2]=1$. Moreover, streams from different UAVs are mutually uncorrelated (no joint transmission), i.e., $\mathbb{E}[s_{k,\ell}s_{k',\ell'}^*]=0$ for $k\neq k'$ and any $\ell,\ell'\in\{1,\ldots,M,r\}$.
+where $\mathbf w_{k,j}\in\mathbb C^{N_t}$ is the communication beamformer for user $j$, $\mathbf w_{k,r}\in\mathbb C^{N_t}$ is the dedicated sensing beamformer, $s_{k,j}$ is the data symbol of user $j$, and $s_{k,r}$ is a known probing waveform. The symbols satisfy $\mathbb{E}[s_{k,j}s_{k,j'}^*]=\delta_{jj'}$, $\mathbb{E}[s_{k,j}s_{k,r}^*]=0$, and $\mathbb{E}[|s_{k,r}|^2]=1$. Moreover, streams from different UAVs are mutually uncorrelated (no joint transmission), i.e., $\mathbb{E}[s_{k,\ell}s_{k',\ell'}^*]=0$ for $k\neq k'$ and any $\ell,\ell'\in\{1,\ldots,M,r\}$.
 
 Under the above symbol statistics, the transmit covariance matrix of UAV $k$ is
 \begin{equation}
@@ -274,7 +281,7 @@ Let $k(m)$ denote the serving UAV of user $m$. The desired signal power of user 
 I_m=\sum_{k\in\mathcal K}\sum_{j\in\mathcal M}\big|\mathbf h_{k,m}^H\mathbf w_{k,j}\big|^2\,\mathbf 1\{(k,j)\neq(k(m),m)\}\\
 +\sum_{k\in\mathcal K}\big|\mathbf h_{k,m}^H\mathbf w_{k,r}\big|^2.
 \end{multline}
-The received SINR $\gamma_m$ and the achievable rate of user $R_m$ are then given by
+The received SINR $\gamma_m$ and the achievable rate $R_m$ of user $m$ are then given by
 \begin{equation}
 \gamma_m=\frac{S_m}{\sigma^2+I_m},\qquad R_m=B\log_2(1+\gamma_m),
 \end{equation}
@@ -286,10 +293,10 @@ where $\sigma^2$ is the noise power and $B$ is the system bandwidth.
 
 The UAVs are interconnected by an ultra-fast backhaul link and share a common clock and local oscillator, so that their echo observations can be fused coherently. Each target is modeled as an isotropic point scatterer whose reflectivity does not depend on the observation direction. The reflection coefficient of target $n$ with respect to UAV $k$ is then factorized as
 \begin{equation}
-\alpha_{k,n}=\kappa_n\,g_{k,n},\qquad
+\alpha_{k,n}=\chi_n\,g_{k,n},\qquad
 g_{k,n}=\frac{\lambda}{(4\pi)^{3/2}d_{k,n}^{2}}\,e^{-j4\pi d_{k,n}/\lambda},
 \end{equation}
-where $\kappa_n=\sqrt{\sigma_{{\rm rcs},n}}\,e^{j\psi_n}$ is the unknown complex reflectivity of target $n$, with $\sigma_{{\rm rcs},n}$ the RCS and $\psi_n$ the reflection phase, and $d_{k,n}=\|\mathbf q_n-\mathbf p_k\|$ is the distance between UAV $k$ and target $n$ located at $\mathbf q_n$. The factor $g_{k,n}$ is known: its magnitude accounts for the two-way free-space path loss ($d_{k,n}^{-4}$ in power), and its phase is the round-trip propagation phase, which is deterministic given the geometry and is resolved thanks to the coherent link. Consequently, $|\alpha_{k,n}|^2=\lambda^2\sigma_{{\rm rcs},n}/((4\pi)^3d_{k,n}^4)$, and the only unknown quantity shared by all UAVs is the scalar $\kappa_n$. 
+where $\chi_n=\sqrt{\sigma_{{\rm rcs},n}}\,e^{j\psi_n}$ is the unknown complex reflectivity of target $n$, with $\sigma_{{\rm rcs},n}$ the RCS and $\psi_n$ the reflection phase, and $d_{k,n}=\|\mathbf q_n-\mathbf p_k\|$ is the distance between UAV $k$ and target $n$ located at $\mathbf q_n$. The factor $g_{k,n}$ is known: its magnitude accounts for the two-way free-space path loss ($d_{k,n}^{-4}$ in power), and its phase is the round-trip propagation phase, which is deterministic given the geometry and is resolved thanks to the coherent link. Consequently, $|\alpha_{k,n}|^2=\lambda^2\sigma_{{\rm rcs},n}/((4\pi)^3d_{k,n}^4)$, and the only unknown quantity shared by all UAVs is the scalar $\chi_n$. As in the channel model, a distance floor at $d_0$ is applied here as well, which is inactive since $d_{k,n}\ge z_{\min}\ge d_0$, with $d_0$ on the meter scale.
 
 Each UAV knows the symbols it transmits and uses them as matched-filter references. By the mutual uncorrelatedness of the transmit streams, these symbol sequences, including those transmitted by different UAVs, are approximately orthogonal over the $N_s=BT_s$ samples of coherent integration, where $T_s$ is the integration time, so that each stream is isolated by its matched filter. Only monostatic echoes are processed, i.e., UAV $k$ uses the echoes of its own transmission; bistatic echoes of the other UAVs' signals are discarded, which further renders the bound conservative. The observation vector stacked over the $M{+}1$ streams is then
 \begin{equation}
@@ -303,7 +310,7 @@ where $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$. This expres
 
 \subsubsection{Fisher Information Matrix}
 
-For each target, the unknown parameter vector is $\boldsymbol\xi_n=[x_n,\,y_n,\,\ln|\kappa_n|,\,\arg\kappa_n]^T$, where the first two entries are the parameters of interest and the last two are nuisance parameters. Since all UAVs observe the same target, they share a single pair of nuisance parameters. The $\ln|\kappa_n|$ parameterization is used only for notational convenience; any invertible reparameterization of the nuisance parameters leaves the position CRB unchanged.
+For each target, the unknown parameter vector is $\boldsymbol\xi_n=[x_n,\,y_n,\,\ln|\chi_n|,\,\arg\chi_n]^T$, where the first two entries are the parameters of interest and the last two are nuisance parameters. Since all UAVs observe the same target, they share a single pair of nuisance parameters. The $\ln|\chi_n|$ parameterization is used only for notational convenience; any invertible reparameterization of the nuisance parameters leaves the position CRB unchanged.
 
 To keep the model tractable and conservative, the dependence of $\alpha_{k,n}$ on the target position is ignored, i.e., $g_{k,n}$ is treated as a known constant when differentiating. In particular, the carrier-phase term $e^{-j4\pi d_{k,n}/\lambda}$ is not exploited for ranging; only the spatial beam pattern and the delay are used to localize the target.
 
@@ -318,9 +325,9 @@ All four columns carry the common factor $\alpha_{k,n}$, so its phase cancels in
 
 The round-trip delay is $\tau_{k,n}=2d_{k,n}/c$. Assuming a flat spectrum over bandwidth $B$, the effective bandwidth satisfies $B_{\rm rms}^2=B^2/12$, and the delay-induced information on the horizontal position is
 \begin{equation}
-\mathbf J^{\rm del}_n=\sum_{k\in\mathcal K}8\pi^2B_{\rm rms}^2\Big(\frac{2}{c}\Big)^2\rho_{k,n}\,\mathbf g_{k,n}\mathbf g_{k,n}^T,
+\mathbf J^{\rm del}_n=\sum_{k\in\mathcal K}8\pi^2B_{\rm rms}^2\Big(\frac{2}{c}\Big)^2\rho_{k,n}\,\mathbf e_{k,n}\mathbf e_{k,n}^T,
 \end{equation}
-where $\mathbf g_{k,n}=(\mathbf q_n-\mathbf p_k)_{xy}/d_{k,n}$ is the gradient of $d_{k,n}$ with respect to the horizontal position of the target. The total FIM is therefore
+where $\mathbf e_{k,n}=(\mathbf q_n-\mathbf p_k)_{xy}/d_{k,n}$ is the gradient of $d_{k,n}$ with respect to the horizontal position of the target, with norm $\|\mathbf e_{k,n}\|=\cos\phi_{k,n}\le 1$. The total FIM is therefore
 \begin{equation}
 \mathbf J_n=\mathbf J^{\rm ang}_n+\operatorname{blkdiag}\big(\mathbf J^{\rm del}_n,\ \mathbf 0_{2\times2}\big).
 \end{equation}
@@ -329,15 +336,15 @@ where $\mathbf g_{k,n}=(\mathbf q_n-\mathbf p_k)_{xy}/d_{k,n}$ is the gradient o
 
 Partition $\mathbf J_n$ into blocks according to the position and nuisance parameters:
 \begin{equation}
-\mathbf J_n=\begin{bmatrix}\mathbf J_{pp,n} & \mathbf J_{p\eta,n}\\ \mathbf J_{p\eta,n}^T & \mathbf J_{\eta\eta,n}\end{bmatrix},
+\mathbf J_n=\begin{bmatrix}\mathbf J_{pp,n} & \mathbf J_{p\nu,n}\\ \mathbf J_{p\nu,n}^T & \mathbf J_{\nu\nu,n}\end{bmatrix},
 \end{equation}
-where $\mathbf J_{pp,n}\in\mathbb R^{2\times2}$ is the position block and already contains the delay-induced term $\mathbf J^{\rm del}_n$, while $\mathbf J_{p\eta,n}$ and $\mathbf J_{\eta\eta,n}$ are associated with the nuisance parameters. Eliminating the nuisance parameters via the Schur complement, the position CRB of target $n$ is
+where $\mathbf J_{pp,n}\in\mathbb R^{2\times2}$ is the position block and already contains the delay-induced term $\mathbf J^{\rm del}_n$, while $\mathbf J_{p\nu,n}$ and $\mathbf J_{\nu\nu,n}$ are associated with the nuisance parameters. Eliminating the nuisance parameters via the Schur complement, the position CRB of target $n$ is
 \begin{equation}
-\mathrm{CRB}_n\big(\{\mathbf p_k,\mathbf R_k\}\big)=\operatorname{tr}\!\Big[\big(\mathbf J_{pp,n}-\mathbf J_{p\eta,n}\mathbf J_{\eta\eta,n}^{-1}\mathbf J_{p\eta,n}^T\big)^{-1}\Big]\ \ [\mathrm{m}^2].
+\mathrm{CRB}_n\big(\{\mathbf p_k,\mathbf R_k\}\big)=\operatorname{tr}\!\Big[\big(\mathbf J_{pp,n}-\mathbf J_{p\nu,n}\mathbf J_{\nu\nu,n}^{-1}\mathbf J_{p\nu,n}^T\big)^{-1}\Big]\ \ [\mathrm{m}^2].
 \end{equation}
 Because the common phase of $\alpha_{k,n}$ cancels in every block, the CRB is independent of the reflection phase $\psi_n$ and of the propagation phases $4\pi d_{k,n}/\lambda$. Hence the coherent-fusion assumption enters only through the shared nuisance pair. Since the position dependence of $\alpha_{k,n}$ is discarded, the resulting bound is conservative with respect to the full signal model, which would additionally exploit the carrier phase and the amplitude variation.
 
-For a single UAV, the position block becomes singular when the target lies in the plane $\Delta y=0$: both the angular and the delay information then act along the $x$-direction, so the $y$-coordinate is unobservable and the ULA cannot distinguish the two sides of its axis. This is a physical limitation rather than a numerical one, and it persists for $K>1$ only if every UAV satisfies $\Delta y=0$.
+For a single UAV, the position block becomes singular when the target lies in the plane $r_y=y_n-y_k=0$, i.e., the target shares the $y$-coordinate of the UAV: both the angular and the delay information then act along the $x$-direction, so the $y$-coordinate is unobservable and the ULA cannot distinguish the two sides of its axis. This is a physical limitation rather than a numerical one, and it persists for $K>1$ only if every UAV satisfies $y_n=y_k$.
 
 % \subsection{Assumptions}
 % \textbf{Assumptions.} The model relies on the following assumptions, each with its justification.
@@ -351,7 +358,7 @@ For a single UAV, the position block becomes singular when the target lies in th
 %   \item \textbf{(A7) Separated sensing and communication beams.} The sensing stream is dedicated and the communication streams are not waveform-shared, since this decouples the sensing metric from the data content and exposes a clean power-split tradeoff.
 %   \item \textbf{(A8) Static targets with known altitude.} Targets do not move during the mission and lie on the ground plane, so only the horizontal position needs to be estimated.
 %   \item \textbf{(A9) Single-channel echo reception with perfect transmit--receive isolation.} Each UAV receives with one channel and suffers no self-interference, because this gives a conservative sensing SNR (no receive-array gain) while avoiding the modeling of full-duplex residual interference.
-%   \item \textbf{(A10) Coherent fusion across UAVs.} Echo observations of different UAVs are fused with shared nuisance parameters, which gives an optimistic but tractable CRB for cooperative localization.
+%   \item \textbf{(A10) Coherent fusion across UAVs.} Echo observations of different UAVs are fused with shared nuisance parameters, which is exact within the simplified echo model and keeps the cooperative CRB tractable; the overall bound remains conservative.
 %   \item \textbf{(A11) Kinematics.} UAVs move with bounded speed $v_{\max}$, fixed altitude band, and a minimum separation $d_{\min}$; propulsion energy and array yaw are not modeled, because the focus is on the ISAC resource tradeoff rather than on flight energy.
 % \end{itemize}
 
