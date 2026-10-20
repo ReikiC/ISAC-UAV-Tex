@@ -346,6 +346,8 @@ Because the common phase of $\alpha_{k,n}$ cancels in every block, the CRB is in
 
 For a single UAV, the position block becomes singular when the target lies in the plane $r_y=y_n-y_k=0$, i.e., the target shares the $y$-coordinate of the UAV: both the angular and the delay information then act along the $x$-direction, so the $y$-coordinate is unobservable and the ULA cannot distinguish the two sides of its axis. This is a physical limitation rather than a numerical one, and it persists for $K>1$ only if every UAV satisfies $y_n=y_k$.
 
+In the sequel, the sensing metric uses the capped bound $\widetilde{\mathrm{CRB}}_n=\min\{\mathrm{CRB}_n,\Gamma_{\rm cap}\}$: targets with a singular or ill-conditioned $\mathbf J_n$, such as the degenerate geometry above, are assigned the value $\Gamma_{\rm cap}$, corresponding to the least informative outcome.
+
 % \subsection{Assumptions}
 % \textbf{Assumptions.} The model relies on the following assumptions, each with its justification.
 % \begin{itemize}
