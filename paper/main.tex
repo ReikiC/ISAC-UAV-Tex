@@ -169,7 +169,9 @@ placeholder
 
 We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:system}. The network consists of $K$ UAVs ($\mathcal K=\{1,2,\ldots,K\}$), $M$ ground users ($\mathcal M$), $N$ static ground targets ($\mathcal N$), and a central controller (CC) hosted by a leader UAV.
 
-The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. All ground users move according to the correlated random walk model in Section~\ref{sec:user_mobility} and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The CC collects state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. The mission horizon is divided into $T$ slots of duration $\Delta t$.
+The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a fixed altitude band. The number of antennas satisfies $N_t\ge M+1$. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. All ground users move according to the correlated random walk model in Section~\ref{sec:user_mobility} and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The backhaul between the UAVs and the CC is considered error-free and delay-free. The CC collects global state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. 
+
+The mission horizon is divided into $T$ slots of duration $\Delta t$.
 
 \subsection{Coordinate System and Kinematics}
 
@@ -233,13 +235,15 @@ The users are assumed to be much slower than the UAVs, i.e., $v^{\rm u}_{\max}\l
 
 \subsection{A2G mmWave Channel Model}\label{sec:channel}
 
+The A2G channel is considered as a block-fading model. The deterministic Doppler of the LoS component is assumed to be compensated, whereas the scattering component is simply redrawn in every slot.
+
 Let $\theta_{\rm el}$ denote the elevation angle (in degrees) of the UAV as seen from a ground node. The LoS probability follows the sigmoid model of Al-Hourani:
 \begin{equation}
 P_{\rm LoS}(\theta_{\rm el})=\frac{1}{1+a\exp\!\big(-b(\theta_{\rm el}-a)\big)},
 \end{equation}
 where $a$ and $b$ are environment-dependent constants.
 
-Let $\mathbf p_k$ and $\mathbf u_m$ denote the positions of UAV $k$ and user $m$, respectively, with distance $d_{k,m}=\|\mathbf p_k-\mathbf u_m\|$ as defined in the link geometry. Since the free-space reference model is valid only beyond the reference distance $d_0$, the effective distance is floored at $\bar d_{k,m}=\max\{d_{k,m},d_0\}$, and the reference channel gain is $\beta_0=(\lambda/4\pi d_0)^2$. The LoS/NLoS-weighted average path-loss gain is then given by
+Let the distance between UAV $k$ and user $m$ be defined as $d_{k,m}=\|\mathbf p_k-\mathbf u_m\|$. Since the free-space reference model is valid only beyond the reference distance $d_0$, the effective distance is floored at $\bar d_{k,m}=\max\{d_{k,m},d_0\}$, and the reference channel gain is $\beta_0=(\lambda/4\pi d_0)^2$. The LoS/NLoS-weighted average path-loss gain is then given by
 \begin{equation}
 \bar\beta_{k,m}=P_{\rm LoS}\,\beta_0\Big(\frac{d_0}{\bar d_{k,m}}\Big)^{\eta_{\rm L}} +\big(1-P_{\rm LoS}\big)\beta_0\Big(\frac{d_0}{\bar d_{k,m}}\Big)^{\eta_{\rm N}},
 \end{equation}
@@ -291,7 +295,9 @@ where $\sigma^2$ is the noise power and $B$ is the system bandwidth.
 
 \subsubsection{Echo and Observation Model}
 
-The UAVs are interconnected by an ultra-fast backhaul link and share a common clock and local oscillator, so that their echo observations can be fused coherently. Each target is modeled as an isotropic point scatterer whose reflectivity does not depend on the observation direction. The reflection coefficient of target $n$ with respect to UAV $k$ is then factorized as
+The UAVs are interconnected by an ultra-fast backhaul link and share a common clock and local oscillator, so that their echo observations can be fused coherently. Each target is modeled as an isotropic point scatterer whose reflectivity does not depend on the observation direction. The targets are assumed to be resolvable from each other in delay or angle, so that their echoes do not overlap and each CRB can be treated separately; clutter is neglected, and the users do not generate echoes.
+
+The reflection coefficient of target $n$ with respect to UAV $k$ is then factorized as
 \begin{equation}
 \alpha_{k,n}=\chi_n\,g_{k,n},\qquad
 g_{k,n}=\frac{\lambda}{(4\pi)^{3/2}d_{k,n}^{2}}\,e^{-j4\pi d_{k,n}/\lambda},
@@ -365,18 +371,59 @@ In the sequel, the sensing metric uses the capped bound $\widetilde{\mathrm{CRB}
 % \end{itemize}
 
 \section{Problem Formulation}
-State the task to be solved (e.g., the optimization problem), e.g.,
-\begin{subequations}\label{opt:main}
-\begin{align}
-\min_{\mathbf{x}} \quad & f_0(\mathbf{x}) \label{opt:obj}\\
-\text{s.t.}\quad
-& f_i(\mathbf{x}) \le 0, \quad i = 1, \ldots, m, \label{opt:ineq}\\
-& h_j(\mathbf{x}) = 0, \quad j = 1, \ldots, p. \label{opt:eq}
-\end{align}
-\end{subequations}
-Explain each line of problem~\eqref{opt:main} in words: the meaning of the objective~\eqref{opt:obj}, the physical origin of the inequality constraints~\eqref{opt:ineq}, and why the equality constraints~\eqref{opt:eq} couple the decision variables.
 
-Discuss the challenges of problem~\eqref{opt:main} that motivate the proposed method: non-convexity of $f_0(\cdot)$, coupling across blocks, lack of global state information, or the cost of each iteration. These challenges should map one-to-one onto the design choices of the next section.
+\subsection{Information Structure}
+Slot $t$ proceeds in the following order.
+\begin{enumerate}
+\item The CC observes the user positions $\{\mathbf u_m[t]\}$ and decides the UAV positions $\mathbf p_k[t]$ and the association $k(m)[t]$.
+\item The fading $\mathbf g^{\rm s}_{k,m}[t]$ is realized.
+\item The CC decides the beamformers $\mathbf w_{k,j}[t]$ and $\mathbf w_{k,r}[t]$ using $\mathbf h[t]$.
+\item The rates $R_m[t]$ and the bounds $\mathrm{CRB}_n[t]$ of the slot are evaluated.
+\end{enumerate}
+
+The decisions of slot $t$ fall into two groups. Let $\mathcal H_t$ denote the history available at the beginning of slot $t$, i.e., the user positions up to $t$, all past decisions, and all past channels. The two groups are
+\begin{align}
+\mathcal X^{\rm I}[t] &= \big\{\mathbf p_k[t],\ k(m)[t]\big\}, \\
+\mathcal X^{\rm II}[t] &= \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M},\ \mathbf w_{k,r}[t]\big\},
+\end{align}
+where $\mathcal X^{\rm I}[t]$ is a function of $\mathcal H_t$, and $\mathcal X^{\rm II}[t]$ is a function of $(\mathcal H_t,\mathcal X^{\rm I}[t],\mathbf h[t])$.
+
+A \emph{policy} $\mathcal{P}$ is the collection of these two mappings over all slots. The beamformers determine the transmit covariance $\mathbf R_k[t]$ of Section~\ref{sec:model}.
+
+\subsection{Performance Metrics}
+
+\textbf{Communication metric.} With user weights $\omega_m\ge 0$, the normalized weighted spectral efficiency of slot $t$ is
+\begin{equation}
+\bar R[t]=\frac{1}{B\sum_{m\in\mathcal M}\omega_m}\sum_{m\in\mathcal M}\omega_m R_m[t]\quad[\mathrm{bit/s/Hz}],
+\end{equation}
+where $R_m[t]$ is given in Section~\ref{sec:model}. Normalizing by $\sum_m\omega_m$ makes $\bar R[t]$ independent of $M$ and of the scale of $\omega$.
+
+\textbf{Sensing metric.} The capped bound $\widetilde{\mathrm{CRB}}_n[t]=\min\{\mathrm{CRB}_n[t],\Gamma_{\rm cap}\}$ is normalized by $\Gamma_{\rm cap}$:
+\begin{equation}
+\bar C[t]=\frac{1}{N\,\Gamma_{\rm cap}}\sum_{n\in\mathcal N}\widetilde{\mathrm{CRB}}_n\big(\{\mathbf p_k[t],\mathbf R_k[t]\}\big)\in(0,1].
+\end{equation}
+The targets are static and the bound depends on the beamformers only through $\mathbf R_k[t]$; since the beamformers use $\mathbf h[t]$, $\bar C[t]$ is random through the fading. To stay conservative, the bound is evaluated slot by slot, and the information collected on the static targets is not accumulated across slots.
+
+\subsection{Problem Statement}
+
+With the trade-off weight $\mu\ge 0$, the mission problem is
+\begin{align}
+\max_{\mathcal{P}}\quad & \mathbb E_{\mathcal{P}}\Big[\frac1T\sum_{t=0}^{T-1}\Big(\bar R[t]-\mu\,\bar C[t]\Big)\Big] \label{opt:main}\\
+\text{s.t.}\quad & \|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t, \ \forall k,\,t\le T-2, \tag{C1}\label{C1}\\
+& \mathbf p_k[t]\in\mathcal A\times[z_{\min},z_{\max}], \ \forall k,\,t, \tag{C2}\label{C2}\\
+& \|\mathbf p_k[t]-\mathbf p_{k'}[t]\|\ge d_{\min}, \ \forall k\neq k',\,t, \tag{C3}\label{C3}\\
+& \operatorname{tr}(\mathbf R_k[t])\le P_{\max}, \ \forall k,\,t, \tag{C4}\label{C4}\\
+& k(m)[t]\in\mathcal K, \ \forall m,\,t, \tag{C5}\label{C5}
+\end{align}
+
+where the expectation is over the user mobility and the small-scale fading, the constraints must hold almost surely, and $\mathbf p_k[0]$ is given.
+
+The objective~\eqref{opt:main} is the time-averaged weighted spectral efficiency minus $\mu$ times the normalized localization bound: $\mu=0$ recovers pure communication, and a larger $\mu$ shifts resources to sensing. Because $\bar R$ is in bit/s/Hz and $\bar C\in(0,1]$, the value of $\mu$ has to be calibrated against the typical magnitude of $\bar R$. Constraints~\eqref{C1} and~\eqref{C2} describe the UAV kinematics and flight volume, and~\eqref{C3} is the collision-avoidance requirement. The power budget~\eqref{C4} limits the total power of each UAV, shared by the communication and sensing streams, and it must hold for every fading realization. Constraint~\eqref{C5} makes the association discrete: user $m$ takes its desired signal from the single UAV $k(m)$, and the streams from all other UAVs become interference.
+
+
+\subsection{Challenges}
+
+Problem~\eqref{opt:main} is difficult for the following reasons, which motivate the design of the next section.
 
 \section{Proposed Method}\label{sec:method}
 Describe the approach to solving problem~\eqref{opt:main}. The overall procedure is summarized in Algorithm~\ref{alg:proposed}.
@@ -399,13 +446,13 @@ which admits a closed-form or low-complexity solution because ... Repeat the arg
 \REPEAT
 \STATE Update one block of $\mathbf{x}$ with the other blocks fixed
 \STATE $t \leftarrow t + 1$
-\UNTIL convergence in objective~\eqref{opt:obj}
+\UNTIL convergence in objective~\eqref{opt:main}
 \STATE \textbf{return} $\mathbf{x}^{(t)}$
 \end{algorithmic}
 \end{algorithm}
 
 \subsection{Convergence and Complexity}
-State the convergence guarantee of Algorithm~\ref{alg:proposed}, e.g., a monotone decrease of the objective~\eqref{opt:obj} and convergence to a stationary point under suitable conditions, and bound the overall complexity in terms of the problem dimensions and the number of iterations. Formal proofs are deferred to an appendix or omitted for brevity.
+State the convergence guarantee of Algorithm~\ref{alg:proposed}, e.g., a monotone decrease of the objective~\eqref{opt:main} and convergence to a stationary point under suitable conditions, and bound the overall complexity in terms of the problem dimensions and the number of iterations. Formal proofs are deferred to an appendix or omitted for brevity.
 
 \section{Simulation Results}\label{sec:results}
 
