@@ -167,22 +167,22 @@ placeholder
 
 \subsection{System Description}
 
-We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:system}. The network consists of $K$ UAVs ($\mathcal K=\{1,2,\ldots,K\}$), $M$ ground users ($\mathcal M$), $N$ static ground targets ($\mathcal N$), and a central controller (CC) hosted by a leader UAV.
+We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:system}. The network consists of $K$ UAVs ($\mathcal K=\{1,2,\ldots,K\}$), $M$ ground users ($\mathcal M$), $N$ static ground targets ($\mathcal N$), and a central controller (CC) hosted by a leader UAV. 
 
-The UAVs are equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a designed altitude band. The number of antennas satisfies $N_t\ge M+1$. Each UAV transmits a superposition of $M$ communication streams and one dedicated sensing stream, and it receives the target echoes of that transmission. All ground users move according to the correlated random walk model in Section~\ref{sec:user_mobility} and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The backhaul between the UAVs and the CC is considered error-free and delay-free. The CC collects global state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. 
+Each UAV is equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a designed altitude band. The number of antennas satisfies $N_t\ge M+1$. All ground users move according to the correlated random walk model in Section~\ref{sec:user_mobility} and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The backhaul between the UAVs and the CC is considered error-free and delay-free. The CC collects global state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. 
 
-The mission horizon is divided into $T$ slots of duration $\Delta t$.
+The mission horizon is divided into $T$ slots of duration $\Delta t$. Let $t\in\{0,1,\ldots,T-1\}$ denote the slot index. Throughout the paper, the slot index $[t]$ is omitted whenever no ambiguity arises. In every slot, each user $m$ is associated with exactly one UAV, denoted by $k(m)\in\mathcal K$, so that the set of users served by UAV $k$ is $\mathcal M_k=\{m:k(m)=k\}$. Each UAV transmits one communication stream to each user in $\mathcal M_k$ and one dedicated sensing stream, and it receives the target echoes of that transmission.
 
 \subsection{Coordinate System and Kinematics}
 
 \subsubsection{Coordinate System}
-All positions are expressed in a common right-handed Cartesian coordinate system, in which the $x$--$y$ plane is horizontal and the $z$-axis points upward. The horizontal mission area is $\mathcal A=[0,L_x]\times[0,L_y]$. The ground users and targets lie on the ground plane, whereas the UAVs fly within the altitude band $[z_{\min},z_{\max}]$. Let $t\in\{0,1,\ldots,T-1\}$ denote the slot index. The positions of UAV $k$, user $m$, and target $n$ are
+All positions are expressed in a common right-handed Cartesian coordinate system, in which the $x$--$y$ plane is horizontal and the $z$-axis points upward. The horizontal mission area is $\mathcal A=[0,L_x]\times[0,L_y]$. The ground users and targets lie on the ground plane, whereas the UAVs fly within the altitude band $[z_{\min},z_{\max}]$. The positions of UAV $k$, user $m$, and target $n$ are
 \begin{align}
 \mathbf p_k[t]&=\big(x_k[t],\,y_k[t],\,z_k[t]\big)^T,\\
 \mathbf u_m[t]&=\big(x_m[t],\,y_m[t],\,0\big)^T,\\
 \mathbf q_n&=\big(x_n,\,y_n,\,0\big)^T,
 \end{align}
-respectively. The targets are static, and the users move according to the correlated random walk described in Section~\ref{sec:user_mobility}. Throughout the paper, the slot index $[t]$ is omitted whenever no ambiguity arises.
+respectively. The targets are static, and the users move according to the correlated random walk described in Section~\ref{sec:user_mobility}. 
 
 \subsubsection{Link Geometry}
 For a link from point $\mathbf o_1$ to point $\mathbf o_2$, let $\mathbf r=\mathbf o_2-\mathbf o_1=(r_x,r_y,r_z)^T$. The link distance, azimuth angle, and elevation angle are
@@ -267,41 +267,41 @@ Here, $\theta_{k,m}$ and $\phi_{k,m}$ denote the azimuth and elevation angles of
 
 UAV $k$ transmits the signal
 \begin{equation}
-\mathbf x_k=\sum_{j=1}^{M}\mathbf w_{k,j}s_{k,j}+\mathbf w_{k,r}s_{k,r},
+\mathbf x_k=\sum_{j\in\mathcal M_k}\mathbf w_{k,j}s_{k,j}+\mathbf w_{k,r}s_{k,r},
 \end{equation}
-where $\mathbf w_{k,j}\in\mathbb C^{N_t}$ is the communication beamformer for user $j$, $\mathbf w_{k,r}\in\mathbb C^{N_t}$ is the dedicated sensing beamformer, $s_{k,j}$ is the data symbol of user $j$, and $s_{k,r}$ is a known probing waveform. The symbols satisfy $\mathbb{E}[s_{k,j}s_{k,j'}^*]=\delta_{jj'}$, $\mathbb{E}[s_{k,j}s_{k,r}^*]=0$, and $\mathbb{E}[|s_{k,r}|^2]=1$. Moreover, streams from different UAVs are mutually uncorrelated (no joint transmission), i.e., $\mathbb{E}[s_{k,\ell}s_{k',\ell'}^*]=0$ for $k\neq k'$ and any $\ell,\ell'\in\{1,\ldots,M,r\}$.
+where $\mathbf w_{k,j}\in\mathbb C^{N_t}$ is the communication beamformer for its served user $j$, $\mathbf w_{k,r}\in\mathbb C^{N_t}$ is the dedicated sensing beamformer, $s_{k,j}$ is the data symbol of user $j$, and $s_{k,r}$ is a known probing waveform. Since the UAVs do not transmit jointly, a stream sent by a non-serving UAV to user $m$ would carry no useful signal and only cause interference; hence no such stream is transmitted. The symbols satisfy $\mathbb{E}[s_{k,j}s_{k,j'}^*]=\delta_{jj'}$ for $j,j'\in\mathcal M_k$, $\mathbb{E}[s_{k,j}s_{k,r}^*]=0$, and $\mathbb{E}[|s_{k,r}|^2]=1$. Moreover, streams from different UAVs are mutually uncorrelated (no joint transmission), i.e., $\mathbb{E}[s_{k,\ell}s_{k',\ell'}^*]=0$ for $k\neq k'$, $\ell\in\mathcal M_k\cup\{r\}$, and $\ell'\in\mathcal M_{k'}\cup\{r\}$.
 
 Under the above symbol statistics, the transmit covariance matrix of UAV $k$ is
 \begin{equation}
 \mathbf R_k=\mathbb{E}\!\left[\mathbf x_k\mathbf x_k^H\right]
-=\sum_{j\in\mathcal M}\mathbf w_{k,j}\mathbf w_{k,j}^H+\mathbf w_{k,r}\mathbf w_{k,r}^H\succeq\mathbf 0,
+=\sum_{j\in\mathcal M_k}\mathbf w_{k,j}\mathbf w_{k,j}^H+\mathbf w_{k,r}\mathbf w_{k,r}^H\succeq\mathbf 0,
 \end{equation}
 and its total transmit power is
 \begin{equation}
-\operatorname{tr}(\mathbf R_k)=\sum_{j\in\mathcal M}\|\mathbf w_{k,j}\|^2+\|\mathbf w_{k,r}\|^2\le P_{\max},\quad \forall k\in\mathcal K.
+\operatorname{tr}(\mathbf R_k)=\sum_{j\in\mathcal M_k}\|\mathbf w_{k,j}\|^2+\|\mathbf w_{k,r}\|^2\le P_{\max},\quad \forall k\in\mathcal K.
 \end{equation}
 
 To characterize how each UAV allocates its power between the two functions, we define the \emph{sensing power fraction}
 \begin{equation}
-\varsigma_k\triangleq\frac{\|\mathbf w_{k,r}\|^2}{\operatorname{tr}(\mathbf R_k)}\in[0,1],
+\varsigma_k\triangleq\frac{\|\mathbf w_{k,r}\|^2}{\operatorname{tr}(\mathbf R_k)}\in[0,1], \quad \forall k\in\mathcal K.
 \end{equation}
 
-Accordingly, the power budget of each UAV for the communication mission is limited by
+Accordingly, the power budget of each UAV for the communication mission is
 \begin{equation}
-\sum_{j\in\mathcal M}\|\mathbf w_{k,j}\|^2=(1-\varsigma_k)\operatorname{tr}(\mathbf R_k)\le(1-\varsigma_k)P_{\max},\quad \forall k\in\mathcal K,
+\sum_{j\in\mathcal M_k}\|\mathbf w_{k,j}\|^2=(1-\varsigma_k)\operatorname{tr}(\mathbf R_k),\quad \forall k\in\mathcal K,
 \end{equation}
 and that for the sensing mission by
 \begin{equation}
-\|\mathbf w_{k,r}\|^2=\varsigma_k\operatorname{tr}(\mathbf R_k)\le\varsigma_k P_{\max},\quad \forall k\in\mathcal K.
+\|\mathbf w_{k,r}\|^2=\varsigma_k\operatorname{tr}(\mathbf R_k),\quad \forall k\in\mathcal K.
 \end{equation}
 
 A larger $\varsigma_k$ therefore shifts power from communication to sensing: $\varsigma_k=0$ corresponds to pure communication, while $\varsigma_k=1$ corresponds to pure sensing via the dedicated sensing stream.
 
-Let $k(m)$ denote the serving UAV of user $m$. The desired signal power of user $m$ is $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$. The interference at user $m$ consists of three parts: (i) multiuser interference (MUI) from the other communication streams of the serving UAV, (ii) inter-UAV interference from all communication streams of the non-serving UAVs, and (iii) sensing-induced interference from the sensing beams of all UAVs, i.e.,
-\begin{multline}
-I_m=\sum_{k\in\mathcal K}\sum_{j\in\mathcal M}\big|\mathbf h_{k,m}^H\mathbf w_{k,j}\big|^2\,\mathbf 1\{(k,j)\neq(k(m),m)\}\\
+The desired signal power of user $m$ is $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$. The interference at user $m$ consists of three parts: (i) multiuser interference (MUI) from the other communication streams of the serving UAV, (ii) inter-UAV interference from the communication streams that the non-serving UAVs send to their own users, and (iii) sensing-induced interference from the sensing beams of all UAVs, i.e.,
+\begin{equation}
+I_m=\sum_{k\in\mathcal K}\sum_{j\in\mathcal M_k}\big|\mathbf h_{k,m}^H\mathbf w_{k,j}\big|^2\,\mathbf 1\{j\neq m\}
 +\sum_{k\in\mathcal K}\big|\mathbf h_{k,m}^H\mathbf w_{k,r}\big|^2.
-\end{multline}
+\end{equation}
 The received SINR $\gamma_m$ and the achievable rate $R_m$ of user $m$ are then given by
 \begin{equation}
 \gamma_m=\frac{S_m}{\sigma^2+I_m},\qquad R_m=B\log_2(1+\gamma_m),
@@ -321,11 +321,11 @@ g_{k,n}=\frac{\lambda}{(4\pi)^{3/2}d_{k,n}^{2}}\,e^{-j4\pi d_{k,n}/\lambda},
 \end{equation}
 where $\chi_n=\sqrt{\sigma_{{\rm rcs},n}}\,e^{j\psi_n}$ is the unknown complex reflectivity of target $n$, with $\sigma_{{\rm rcs},n}$ the RCS and $\psi_n$ the reflection phase, and $d_{k,n}=\|\mathbf q_n-\mathbf p_k\|$ is the distance between UAV $k$ and target $n$ located at $\mathbf q_n$. The factor $g_{k,n}$ is known: its magnitude accounts for the two-way free-space path loss ($d_{k,n}^{-4}$ in power), and its phase is the round-trip propagation phase, which is deterministic given the geometry and is resolved thanks to the coherent link. Consequently, $|\alpha_{k,n}|^2=\lambda^2\sigma_{{\rm rcs},n}/((4\pi)^3d_{k,n}^4)$, and the only unknown quantity shared by all UAVs is the scalar $\chi_n$. As in the channel model, a distance floor at $d_0$ is applied here as well, which is inactive since $d_{k,n}\ge z_{\min}\ge d_0$, with $d_0$ on the meter scale.
 
-Each UAV knows the symbols it transmits and uses them as matched-filter references. By the mutual uncorrelatedness of the transmit streams, these symbol sequences, including those transmitted by different UAVs, are approximately orthogonal over the $N_s=BT_s$ samples of coherent integration, where $T_s$ is the integration time, so that each stream is isolated by its matched filter. Only monostatic echoes are processed, i.e., UAV $k$ uses the echoes of its own transmission; bistatic echoes of the other UAVs' signals are discarded, which further renders the bound conservative. The observation vector stacked over the $M{+}1$ streams is then
+Each UAV knows the symbols it transmits and uses them as matched-filter references. By the mutual uncorrelatedness of the transmit streams, these symbol sequences, including those transmitted by different UAVs, are approximately orthogonal over the $N_s=BT_s$ samples of coherent integration, where $T_s$ is the integration time, so that each stream is isolated by its matched filter. Only monostatic echoes are processed, i.e., UAV $k$ uses the echoes of its own transmission; bistatic echoes of the other UAVs' signals are discarded, which further renders the bound conservative. The observation vector stacked over the $|\mathcal M_k|+1$ streams of UAV $k$ is then
 \begin{equation}
 \mathbf y_{k,n}=\sqrt{N_s}\,\alpha_{k,n}\mathbf W_k^H\mathbf a(\theta_{k,n},\phi_{k,n})+\mathbf z,
 \end{equation}
-where $\mathbf W_k=[\mathbf w_{k,1},\dots,\mathbf w_{k,M},\mathbf w_{k,r}]$ and $\mathbf z\sim\mathcal{CN}(\mathbf 0,\sigma_r^2\mathbf I_{M+1})$. The echo SNR depends on the beamformers only through $\mathbf R_k$:
+where $\mathbf W_k=[\{\mathbf w_{k,j}\}_{j\in\mathcal M_k},\mathbf w_{k,r}]$ and $\mathbf z\sim\mathcal{CN}(\mathbf 0,\sigma_r^2\mathbf I_{|\mathcal M_k|+1})$. The echo SNR depends on the beamformers only through $\mathbf R_k$:
 \begin{equation}
 \rho_{k,n}=\frac{N_s|\alpha_{k,n}|^2\,\mathbf a_{k,n}^H\mathbf R_k\mathbf a_{k,n}}{\sigma_r^2},
 \end{equation}
@@ -406,9 +406,9 @@ Let the history available at the beginning of slot $t$ be
 i.e., the user positions up to and including slot $t$, and all decisions and channels of the previous slots. The decisions of slot $t$ fall into two groups,
 \begin{align}
 \mathcal X^{\rm I}[t] &= \big\{\mathbf p_k[t],\ k(m)[t]\big\}, \\
-\mathcal X^{\rm II}[t] &= \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M},\ \mathbf w_{k,r}[t]\big\},
+\mathcal X^{\rm II}[t] &= \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M_k[t]},\ \mathbf w_{k,r}[t]\big\},
 \end{align}
-where $\mathcal X^{\rm I}[t]$ is a function of $\mathcal H_t$, and $\mathcal X^{\rm II}[t]$ is a function of $(\mathcal H_t,\mathcal X^{\rm I}[t],\mathbf h[t])$. Specifically, define two mappings
+where $\mathcal X^{\rm I}[t]$ is a function of $\mathcal H_t$, and $\mathcal X^{\rm II}[t]$ is a function of $(\mathcal H_t,\mathcal X^{\rm I}[t],\mathbf h[t])$. Note that $\mathcal M_k[t]$ is determined by the association $k(m)[t]$ in $\mathcal X^{\rm I}[t]$, so the association-first ordering guarantees that it is already defined when the beamformers are decided. Specifically, define two mappings
 \begin{align}
     \mathcal{L}^{\rm I}_t : \mathcal H_t &\;\mapsto\; \mathcal X^{\rm I}[t], \\
     \mathcal{L}^{\rm II}_t : \big(\mathcal H_t,\,\mathcal X^{\rm I}[t],\,\mathbf h[t]\big) &\;\mapsto\; \mathcal X^{\rm II}[t],
@@ -416,7 +416,7 @@ where $\mathcal X^{\rm I}[t]$ is a function of $\mathcal H_t$, and $\mathcal X^{
 which yield
 \begin{align}
     \mathcal{L}^{\rm I}_t\!\big(\mathcal H_t\big) &= \big\{\mathbf p_k[t],\; k(m)[t]\big\}, \\
-    \mathcal{L}^{\rm II}_t\!\big(\mathcal H_t,\,\mathcal X^{\rm I}[t],\,\mathbf h[t]\big) &= \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M},\;\mathbf w_{k,r}[t]\big\}.
+    \mathcal{L}^{\rm II}_t\!\big(\mathcal H_t,\,\mathcal X^{\rm I}[t],\,\mathbf h[t]\big) &= \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M_k[t]},\;\mathbf w_{k,r}[t]\big\}.
 \end{align}
 A \emph{policy} $\mathcal P$ is the collection of these two mappings over all slots, formalized as
 \begin{equation}
@@ -453,7 +453,7 @@ With the trade-off weight $\mu\ge 0$, the mission problem is
 
 where the expectation is over the user mobility and the small-scale fading, the constraints must hold almost surely, and $\mathbf p_k[0]$ is given.
 
-The objective~\eqref{opt:main} is the time-averaged weighted spectral efficiency minus $\mu$ times the normalized localization bound: $\mu=0$ recovers pure communication, and a larger $\mu$ shifts resources to sensing. Because $\bar R$ is in bit/s/Hz and $\bar C\in(0,1]$, the value of $\mu$ has to be calibrated against the typical magnitude of $\bar R$. Constraints~\eqref{C1} and~\eqref{C2} describe the UAV kinematics and flight volume, and~\eqref{C3} is the collision-avoidance requirement. The power budget~\eqref{C4} limits the total power of each UAV, shared by the communication and sensing streams, and it must hold for every fading realization. Constraint~\eqref{C5} makes the association discrete: user $m$ takes its desired signal from the single UAV $k(m)$, and the streams from all other UAVs become interference.
+The objective~\eqref{opt:main} is the time-averaged weighted spectral efficiency minus $\mu$ times the normalized localization bound: $\mu=0$ recovers pure communication, and a larger $\mu$ shifts resources to sensing. Because $\bar R$ is in bit/s/Hz and $\bar C\in(0,1]$, the value of $\mu$ has to be calibrated against the typical magnitude of $\bar R$. Constraints~\eqref{C1} and~\eqref{C2} describe the UAV kinematics and flight volume, and~\eqref{C3} is the collision-avoidance requirement. The power budget~\eqref{C4} limits the total power of each UAV, shared by the communication and sensing streams, and it must hold for every fading realization. Constraint~\eqref{C5} makes the association discrete: user $m$ takes its desired signal from the single UAV $k(m)$, while the streams that the other UAVs send to their own users, together with all sensing streams, become interference.
 
 
 \subsection{Challenges}
