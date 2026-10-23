@@ -273,12 +273,29 @@ where $\mathbf w_{k,j}\in\mathbb C^{N_t}$ is the communication beamformer for us
 
 Under the above symbol statistics, the transmit covariance matrix of UAV $k$ is
 \begin{equation}
-\mathbf R_k=\mathbb{E}[\mathbf x_k\mathbf x_k^H]=\sum_{j=1}^{M}\mathbf w_{k,j}\mathbf w_{k,j}^H+\mathbf w_{k,r}\mathbf w_{k,r}^H\succeq\mathbf 0,
+\mathbf R_k=\mathbb{E}\!\left[\mathbf x_k\mathbf x_k^H\right]
+=\sum_{j\in\mathcal M}\mathbf w_{k,j}\mathbf w_{k,j}^H+\mathbf w_{k,r}\mathbf w_{k,r}^H\succeq\mathbf 0,
 \end{equation}
-and the transmit power of each UAV is limited by
+and its total transmit power is
 \begin{equation}
-\operatorname{tr}(\mathbf R_k)\le P_{\max},\quad \forall k\in\mathcal K.
+\operatorname{tr}(\mathbf R_k)=\sum_{j\in\mathcal M}\|\mathbf w_{k,j}\|^2+\|\mathbf w_{k,r}\|^2\le P_{\max},\quad \forall k\in\mathcal K.
 \end{equation}
+
+To characterize how each UAV allocates its power between the two functions, we define the \emph{sensing power fraction}
+\begin{equation}
+\varsigma_k\triangleq\frac{\|\mathbf w_{k,r}\|^2}{\operatorname{tr}(\mathbf R_k)}\in[0,1],
+\end{equation}
+
+Accordingly, the power budget of each UAV for the communication mission is limited by
+\begin{equation}
+\sum_{j\in\mathcal M}\|\mathbf w_{k,j}\|^2=(1-\varsigma_k)\operatorname{tr}(\mathbf R_k)\le(1-\varsigma_k)P_{\max},\quad \forall k\in\mathcal K,
+\end{equation}
+and that for the sensing mission by
+\begin{equation}
+\|\mathbf w_{k,r}\|^2=\varsigma_k\operatorname{tr}(\mathbf R_k)\le\varsigma_k P_{\max},\quad \forall k\in\mathcal K.
+\end{equation}
+
+A larger $\varsigma_k$ therefore shifts power from communication to sensing: $\varsigma_k=0$ corresponds to pure communication, while $\varsigma_k=1$ corresponds to pure sensing via the dedicated sensing stream.
 
 Let $k(m)$ denote the serving UAV of user $m$. The desired signal power of user $m$ is $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$. The interference at user $m$ consists of three parts: (i) multiuser interference (MUI) from the other communication streams of the serving UAV, (ii) inter-UAV interference from all communication streams of the non-serving UAVs, and (iii) sensing-induced interference from the sensing beams of all UAVs, i.e.,
 \begin{multline}
