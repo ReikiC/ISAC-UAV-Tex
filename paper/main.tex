@@ -171,7 +171,7 @@ We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:syste
 
 Each UAV is equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a designed altitude band. The number of antennas satisfies $N_t\ge M+1$. All ground users move according to the correlated random walk model in Section~\ref{sec:user_mobility} and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The backhaul between the UAVs and the CC is considered error-free and delay-free. The CC collects global state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. 
 
-The mission horizon is divided into $T$ slots of duration $\Delta t$. Let $t\in\{0,1,\ldots,T-1\}$ denote the slot index. Throughout the paper, the slot index $[t]$ is omitted whenever no ambiguity arises. In every slot, each user $m$ is associated with exactly one UAV, denoted by $k(m)\in\mathcal K$, so that the set of users served by UAV $k$ is $\mathcal M_k=\{m:k(m)=k\}$. Each UAV transmits one communication stream to each user in $\mathcal M_k$ and one dedicated sensing stream, and it receives the target echoes of that transmission.
+The mission horizon is divided into $T$ slots of duration $\Delta t$. Let $t\in\{0,1,\ldots,T-1\}$ denote the slot index. Throughout the paper, the slot index $[t]$ is omitted whenever no ambiguity arises. In every slot, each user $m$ is associated with exactly one UAV, denoted by $k(m)\in\mathcal K$, so that the set of users served by UAV $k$ is $\mathcal M_k=\{m:k(m)=k\}$; the rule that fixes $k(m)$ is given in~\eqref{eq:assoc}. Each UAV transmits one communication stream to each user in $\mathcal M_k$ and one dedicated sensing stream, and it receives the target echoes of that transmission.
 
 \subsection{Coordinate System and Kinematics}
 
@@ -248,6 +248,12 @@ Let the distance between UAV $k$ and user $m$ be defined as $d_{k,m}=\|\mathbf p
 \bar\beta_{k,m}=P_{\rm LoS}\,\beta_0\Big(\frac{d_0}{\bar d_{k,m}}\Big)^{\eta_{\rm L}} +\big(1-P_{\rm LoS}\big)\beta_0\Big(\frac{d_0}{\bar d_{k,m}}\Big)^{\eta_{\rm N}},
 \end{equation}
 where $\eta_{\rm L}<\eta_{\rm N}$ are the path-loss exponents of the LoS and NLoS links, respectively.
+
+The large-scale gains also fix the user association: in every slot, user $m$ is served by the UAV with the strongest average gain,
+\begin{equation}\label{eq:assoc}
+k(m)[t]=\arg\max_{k\in\mathcal K}\ \bar\beta_{k,m}[t],\qquad\forall m,\ t,
+\end{equation}
+where ties are broken in favor of the smallest index. Since $\bar\beta_{k,m}[t]$ depends only on the slot positions $\mathbf p_k[t]$ and $\mathbf u_m[t]$, the association is a deterministic function of the slot geometry: it is fixed once the positions are known, requires no knowledge of the small-scale fading, and is not an optimization variable of the network.
 
 The channel from UAV $k$ to user $m$ follows a Rician fading model:
 \begin{equation}
@@ -393,7 +399,7 @@ In the sequel, the sensing metric uses the capped bound $\widetilde{\mathrm{CRB}
 
 Slot $t$ proceeds in the following order.
 \begin{enumerate}
-\item The CC observes the user positions $\mathbf u_m[t]$ and decides the UAV positions $\mathbf p_k[t]$ and the association $k(m)[t]$. For $t=0$, $\mathbf p_k[0]$ is given and only the association is decided.
+\item The CC observes the user positions $\mathbf u_m[t]$ and decides the UAV positions $\mathbf p_k[t]$. The association $k(m)[t]$ is not a decision: it follows deterministically from the positions through the rule~\eqref{eq:assoc}. For $t=0$, $\mathbf p_k[0]$ is given, so no first-stage decision remains.
 \item The fading $\mathbf g^{\rm s}_{k,m}[t]$ is realized, which yields the channels $\mathbf h[t]$.
 \item The CC observes $\mathbf h[t]$ and decides the beamformers $\mathbf w_{k,j}[t]$ and $\mathbf w_{k,r}[t]$.
 \item The rates $R_m[t]$ and the bounds $\mathrm{CRB}_n[t]$ of the slot are evaluated.
@@ -405,17 +411,17 @@ Let the history available at the beginning of slot $t$ be
 \end{equation}
 i.e., the user positions up to and including slot $t$, and all decisions and channels of the previous slots. The decisions of slot $t$ fall into two groups,
 \begin{align}
-\mathcal X^{\rm I}[t] &= \big\{\mathbf p_k[t],\ k(m)[t]\big\}, \\
+\mathcal X^{\rm I}[t] &= \big\{\mathbf p_k[t]\big\}, \\
 \mathcal X^{\rm II}[t] &= \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M_k[t]},\ \mathbf w_{k,r}[t]\big\},
 \end{align}
-where $\mathcal X^{\rm I}[t]$ is a function of $\mathcal H_t$, and $\mathcal X^{\rm II}[t]$ is a function of $(\mathcal H_t,\mathcal X^{\rm I}[t],\mathbf h[t])$. Note that $\mathcal M_k[t]$ is determined by the association $k(m)[t]$ in $\mathcal X^{\rm I}[t]$, so the association-first ordering guarantees that it is already defined when the beamformers are decided. Specifically, define two mappings
+where $\mathcal X^{\rm I}[t]$ is a function of $\mathcal H_t$, and $\mathcal X^{\rm II}[t]$ is a function of $(\mathcal H_t,\mathcal X^{\rm I}[t],\mathbf h[t])$. Note that $\mathcal M_k[t]$ is determined by the association $k(m)[t]$ of~\eqref{eq:assoc}, which is a deterministic function of the positions $\mathbf p_k[t]$ and $\mathbf u_m[t]$; it is therefore fixed once $\mathcal X^{\rm I}[t]$ is chosen and, in particular, is already defined when the beamformers are decided. Specifically, define two mappings
 \begin{align}
     \mathcal{L}^{\rm I}_t : \mathcal H_t &\;\mapsto\; \mathcal X^{\rm I}[t], \\
     \mathcal{L}^{\rm II}_t : \big(\mathcal H_t,\,\mathcal X^{\rm I}[t],\,\mathbf h[t]\big) &\;\mapsto\; \mathcal X^{\rm II}[t],
 \end{align}
 which yield
 \begin{align}
-    \mathcal{L}^{\rm I}_t\!\big(\mathcal H_t\big) &= \big\{\mathbf p_k[t],\; k(m)[t]\big\}, \\
+    \mathcal{L}^{\rm I}_t\!\big(\mathcal H_t\big) &= \big\{\mathbf p_k[t]\big\}, \\
     \mathcal{L}^{\rm II}_t\!\big(\mathcal H_t,\,\mathcal X^{\rm I}[t],\,\mathbf h[t]\big) &= \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M_k[t]},\;\mathbf w_{k,r}[t]\big\}.
 \end{align}
 A \emph{policy} $\mathcal P$ is the collection of these two mappings over all slots, formalized as
@@ -447,13 +453,12 @@ With the trade-off weight $\mu\ge 0$, the mission problem is
 \text{s.t.}\quad & \|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t, \ \forall k,\,t\le T-2, \tag{C1}\label{C1}\\
 & \mathbf p_k[t]\in\mathcal A\times[z_{\min},z_{\max}], \ \forall k,\,t, \tag{C2}\label{C2}\\
 & \|\mathbf p_k[t]-\mathbf p_{k'}[t]\|\ge d_{\min}, \ \forall k\neq k',\,t, \tag{C3}\label{C3}\\
-& \operatorname{tr}(\mathbf R_k[t])\le P_{\max}, \ \forall k,\,t, \tag{C4}\label{C4}\\
-& k(m)[t]\in\mathcal K, \ \forall m,\,t, \tag{C5}\label{C5}
+& \operatorname{tr}(\mathbf R_k[t])\le P_{\max}, \ \forall k,\,t, \tag{C4}\label{C4}
 \end{align}
 
 where the expectation is over the user mobility and the small-scale fading, the constraints must hold almost surely, and $\mathbf p_k[0]$ is given.
 
-The objective~\eqref{opt:main} is the time-averaged weighted spectral efficiency minus $\mu$ times the normalized localization bound: $\mu=0$ recovers pure communication, and a larger $\mu$ shifts resources to sensing. Because $\bar R$ is in bit/s/Hz and $\bar C\in(0,1]$, the value of $\mu$ has to be calibrated against the typical magnitude of $\bar R$. Constraints~\eqref{C1} and~\eqref{C2} describe the UAV kinematics and flight volume, and~\eqref{C3} is the collision-avoidance requirement. The power budget~\eqref{C4} limits the total power of each UAV, shared by the communication and sensing streams, and it must hold for every fading realization. Constraint~\eqref{C5} makes the association discrete: user $m$ takes its desired signal from the single UAV $k(m)$, while the streams that the other UAVs send to their own users, together with all sensing streams, become interference.
+The objective~\eqref{opt:main} is the time-averaged weighted spectral efficiency minus $\mu$ times the normalized localization bound: $\mu=0$ recovers pure communication, and a larger $\mu$ shifts resources to sensing. Because $\bar R$ is in bit/s/Hz and $\bar C\in(0,1]$, the value of $\mu$ has to be calibrated against the typical magnitude of $\bar R$. Constraints~\eqref{C1} and~\eqref{C2} describe the UAV kinematics and flight volume, and~\eqref{C3} is the collision-avoidance requirement. The power budget~\eqref{C4} limits the total power of each UAV, shared by the communication and sensing streams, and it must hold for every fading realization. The association is not part of the policy: it is fixed by the position-based rule~\eqref{eq:assoc}, under which user $m$ takes its desired signal from the single UAV $k(m)$, while the streams that the other UAVs send to their own users, together with all sensing streams, become interference.
 
 
 \subsection{Challenges}
