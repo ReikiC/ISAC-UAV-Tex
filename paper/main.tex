@@ -311,9 +311,12 @@ A larger $\varsigma_k$ therefore shifts power from communication to sensing: $\v
 
 The desired signal power of user $m$ is $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$. The interference at user $m$ consists of three parts: (i) multiuser interference (MUI) from the other communication streams of the serving UAV, (ii) inter-UAV interference from the communication streams that the non-serving UAVs send to their own users, and (iii) sensing-induced interference from the sensing beams of all UAVs, i.e.,
 \begin{equation}
-I_m=\sum_{k\in\mathcal K}\sum_{j\in\mathcal M_k}\big|\mathbf h_{k,m}^H\mathbf w_{k,j}\big|^2\,\mathbf 1\{j\neq m\}
-+\sum_{k\in\mathcal K}\big|\mathbf h_{k,m}^H\mathbf w_{k,r}\big|^2.
+\begin{aligned}
+I_m={}&\sum_{k\in\mathcal K}\sum_{j\in\mathcal M_k}\big|\mathbf h_{k,m}^H\mathbf w_{k,j}\big|^2\,\mathbf 1\big\{(k,j)\neq(k(m),m)\big\}\\
+&+\sum_{k\in\mathcal K}\big|\mathbf h_{k,m}^H\mathbf w_{k,r}\big|^2.
+\end{aligned}
 \end{equation}
+where the indicator removes exactly the desired stream of user $m$, i.e., the pair $(k,j)=(k(m),m)$, from the interference sum.
 The received SINR $\gamma_m$ and the achievable rate $R_m$ of user $m$ are then given by
 \begin{equation}
 \gamma_m=\frac{S_m}{\sigma^2+I_m},\qquad R_m=B\log_2(1+\gamma_m),
@@ -334,11 +337,11 @@ g_{k,n}=\frac{\lambda}{(4\pi)^{3/2}d_{k,n}^{2}}\,e^{-j4\pi d_{k,n}/\lambda},
 where $\chi_n=\sqrt{\sigma_{{\rm rcs},n}}\,e^{j\psi_n}$ is the unknown complex reflectivity of target $n$, with $\sigma_{{\rm rcs},n}$ the RCS and $\psi_n$ the reflection phase, and $d_{k,n}=\|\mathbf q_n-\mathbf p_k\|$ is the distance between UAV $k$ and target $n$ located at $\mathbf q_n$. The factor $g_{k,n}$ is known: its magnitude accounts for the two-way free-space path loss ($d_{k,n}^{-4}$ in power), and its phase is the round-trip propagation phase, which is deterministic given the geometry and is resolved thanks to the coherent link. Consequently, $|\alpha_{k,n}|^2=\lambda^2\sigma_{{\rm rcs},n}/((4\pi)^3d_{k,n}^4)$, and the only unknown quantity shared by all UAVs is the scalar $\chi_n$. As in the channel model, a distance floor at $d_0$ is applied here as well, which is inactive since $d_{k,n}\ge z_{\min}\ge d_0$, with $d_0$ on the meter scale.
 
 Each UAV knows the symbols it transmits and uses them as matched-filter references. By the mutual uncorrelatedness of the transmit streams, these symbol sequences, including those transmitted by different UAVs, are approximately orthogonal over the $N_s=BT_s$ samples of coherent integration, where $T_s$ is the integration time, so that each stream is isolated by its matched filter. Only monostatic echoes are processed, i.e., UAV $k$ uses the echoes of its own transmission; bistatic echoes of the other UAVs' signals are discarded, which further renders the bound conservative. The observation vector stacked over the $|\mathcal M_k|+1$ streams of UAV $k$ is then
-\begin{equation}
+\begin{equation}\label{eq:obs}
 \mathbf y_{k,n}=\sqrt{N_s}\,\alpha_{k,n}\mathbf W_k^H\mathbf a(\theta_{k,n},\phi_{k,n})+\mathbf z,
 \end{equation}
 where $\mathbf W_k=[\{\mathbf w_{k,j}\}_{j\in\mathcal M_k},\mathbf w_{k,r}]$ and $\mathbf z\sim\mathcal{CN}(\mathbf 0,\sigma_r^2\mathbf I_{|\mathcal M_k|+1})$. The echo SNR depends on the beamformers only through $\mathbf R_k$:
-\begin{equation}
+\begin{equation}\label{eq:echo_snr}
 \rho_{k,n}=\frac{N_s|\alpha_{k,n}|^2\,\mathbf a_{k,n}^H\mathbf R_k\mathbf a_{k,n}}{\sigma_r^2},
 \end{equation}
 where $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$. This expression reveals the coupling between sensing and communication: the sensing performance is invariant to how the power is split among the streams and depends only on the aggregate spatial covariance, so the communication streams also contribute to sensing.
@@ -350,22 +353,24 @@ For each target, the unknown parameter vector is $\boldsymbol\xi_n=[x_n,\,y_n,\,
 To keep the model tractable and conservative, the dependence of $\alpha_{k,n}$ on the target position is ignored, i.e., $g_{k,n}$ is treated as a known constant when differentiating. In particular, the carrier-phase term $e^{-j4\pi d_{k,n}/\lambda}$ is not exploited for ranging; only the spatial beam pattern and the delay are used to localize the target.
 
 Define $\mathbf H_{k,n}\in\mathbb C^{N_t\times4}$ as the Jacobian of the received signal manifold with respect to $\boldsymbol\xi_n$:
-\begin{equation}
+\begin{equation}\label{eq:jacobian}
 \mathbf H_{k,n}=\alpha_{k,n}\big[\partial_x\mathbf a_{k,n},\ \partial_y\mathbf a_{k,n},\ \mathbf a_{k,n},\ j\,\mathbf a_{k,n}\big].
 \end{equation}
 All four columns carry the common factor $\alpha_{k,n}$, so its phase cancels in $\mathbf H_{k,n}^H\mathbf R_k\mathbf H_{k,n}$ and only $|\alpha_{k,n}|^2$ remains. The angle-domain FIM is
-\begin{equation}
+\begin{equation}\label{eq:fim_ang}
 \mathbf J^{\rm ang}_n=\frac{2N_s}{\sigma_r^2}\sum_{k\in\mathcal K}\operatorname{Re}\big\{\mathbf H_{k,n}^H\mathbf R_k\mathbf H_{k,n}\big\}.
 \end{equation}
 
-The round-trip delay is $\tau_{k,n}=2d_{k,n}/c$. Assuming a flat spectrum over bandwidth $B$, the effective bandwidth satisfies $B_{\rm rms}^2=B^2/12$, and the delay-induced information on the horizontal position is
-\begin{equation}
+The delay is absent from the narrowband model~\eqref{eq:obs}: it is obtained from the wideband probing waveform, with an estimate of variance $(8\pi^2B_{\rm rms}^2\rho_{k,n})^{-1}$, where $\rho_{k,n}$ is the echo SNR of~\eqref{eq:echo_snr} and $B_{\rm rms}^2=B^2/12$ for a flat spectrum over $B$. The resulting information on the horizontal position is
+\begin{equation}\label{eq:jdel}
 \mathbf J^{\rm del}_n=\sum_{k\in\mathcal K}8\pi^2B_{\rm rms}^2\Big(\frac{2}{c}\Big)^2\rho_{k,n}\,\mathbf e_{k,n}\mathbf e_{k,n}^T,
 \end{equation}
 where $\mathbf e_{k,n}=(\mathbf q_n-\mathbf p_k)_{xy}/d_{k,n}$ is the gradient of $d_{k,n}$ with respect to the horizontal position of the target, with norm $\|\mathbf e_{k,n}\|=\cos\phi_{k,n}\le 1$. The total FIM is therefore
-\begin{equation}
+\begin{equation}\label{eq:jfim}
 \mathbf J_n=\mathbf J^{\rm ang}_n+\operatorname{blkdiag}\big(\mathbf J^{\rm del}_n,\ \mathbf 0_{2\times2}\big).
 \end{equation}
+
+The two blocks in~\eqref{eq:jfim} are added as if the delay and the angle estimates of an echo were independent. Since only the group delay is retained above, the delay and angle derivatives are orthogonal over the band, and the residual coupling caused by the array aperture is negligible, as $(N_t-1)\lambda/2\ll c/(2B)$.
 
 \subsubsection{Cram\'er--Rao Bound (CRB)}
 
@@ -375,13 +380,15 @@ Partition $\mathbf J_n$ into blocks according to the position and nuisance param
 \end{equation}
 where $\mathbf J_{pp,n}\in\mathbb R^{2\times2}$ is the position block and already contains the delay-induced term $\mathbf J^{\rm del}_n$, while $\mathbf J_{p\nu,n}$ and $\mathbf J_{\nu\nu,n}$ are associated with the nuisance parameters. Eliminating the nuisance parameters via the Schur complement, the position CRB of target $n$ is
 \begin{equation}
-\mathrm{CRB}_n\big(\{\mathbf p_k,\mathbf R_k\}\big)=\operatorname{tr}\!\Big[\big(\mathbf J_{pp,n}-\mathbf J_{p\nu,n}\mathbf J_{\nu\nu,n}^{-1}\mathbf J_{p\nu,n}^T\big)^{-1}\Big]\ \ [\mathrm{m}^2].
+\mathrm{CRB}_n=\operatorname{tr}\!\Big[\big(\mathbf J_{pp,n}-\mathbf J_{p\nu,n}\mathbf J_{\nu\nu,n}^{-1}\mathbf J_{p\nu,n}^T\big)^{-1}\Big]\quad[\mathrm{m}^2],
 \end{equation}
 Because the common phase of $\alpha_{k,n}$ cancels in every block, the CRB is independent of the reflection phase $\psi_n$ and of the propagation phases $4\pi d_{k,n}/\lambda$. Hence the coherent-fusion assumption enters only through the shared nuisance pair. Since the position dependence of $\alpha_{k,n}$ is discarded, the resulting bound is conservative with respect to the full signal model, which would additionally exploit the carrier phase and the amplitude variation.
 
 For a single UAV, the position block becomes singular when the target lies in the plane $r_y=y_n-y_k=0$, i.e., the target shares the $y$-coordinate of the UAV: both the angular and the delay information then act along the $x$-direction, so the $y$-coordinate is unobservable and the ULA cannot distinguish the two sides of its axis. This is a physical limitation rather than a numerical one, and it persists for $K>1$ only if every UAV satisfies $y_n=y_k$.
 
-In the sequel, the sensing metric uses the capped bound $\widetilde{\mathrm{CRB}}_n=\min\{\mathrm{CRB}_n,\Gamma_{\rm cap}\}$: targets with a singular or ill-conditioned $\mathbf J_n$, such as the degenerate geometry above, are assigned the value $\Gamma_{\rm cap}$, corresponding to the least informative outcome.
+Apart from this geometric degeneracy, $\mathbf J_n$ is also rank deficient when the target is illuminated by a single stream: a rank-one $\mathbf R_k$ contributes at most two real dimensions through~\eqref{eq:fim_ang} and one through~\eqref{eq:jdel}, so $\operatorname{rank}(\mathbf J_n)\le3$ and the CRB is unbounded regardless of the geometry, while two streams at one UAV, or one stream at each of two UAVs, restore full rank.
+
+In the sequel, the sensing metric uses the capped bound $\widetilde{\mathrm{CRB}}_n=\min\{\mathrm{CRB}_n,\Gamma_{\rm cap}\}$: targets with a singular or ill-conditioned $\mathbf J_n$, such as those in the two regimes above, are assigned the value $\Gamma_{\rm cap}$, which keeps the metric finite.
 
 % \subsection{Assumptions}
 % \textbf{Assumptions.} The model relies on the following assumptions, each with its justification.
@@ -399,9 +406,9 @@ In the sequel, the sensing metric uses the capped bound $\widetilde{\mathrm{CRB}
 %   \item \textbf{(A11) Kinematics.} UAVs move with bounded speed $v_{\max}$, fixed altitude band, and a minimum separation $d_{\min}$; propulsion energy and array yaw are not modeled, because the focus is on the ISAC resource tradeoff rather than on flight energy.
 % \end{itemize}
 
-\section{Problem Formulation}
+\section{Problem Formulation}\label{sec:problem}
 
-\subsection{Information Structure}
+\subsection{Information Structure}\label{sec:info}
 
 Slot $t$ proceeds in the following order.
 \begin{enumerate}
@@ -431,10 +438,19 @@ which yield
     \mathcal{L}^{\rm II}_t\!\big(\mathcal H_t,\,\mathcal X^{\rm I}[t],\,\mathbf h[t]\big) &= \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M_k[t]},\;\mathbf w_{k,r}[t]\big\}.
 \end{align}
 A \emph{policy} $\mathcal P$ is the collection of these two mappings over all slots, formalized as
-\begin{equation}
+\begin{equation}\label{eq:policy}
     \mathcal P = \big\{\,\mathcal{L}^{\rm I}_t,\;\mathcal{L}^{\rm II}_t\big\}_{t=0}^{T-1}.
 \end{equation}
 The beamformers determine the transmit covariance $\mathbf R_k[t]$ of Section~\ref{sec:model}.
+
+\emph{Restricted policy class.} The class~\eqref{eq:policy} leaves the beamformers free to depend on the instantaneous CSI. For tractability we learn, instead, only the displacements together with the sensing power fractions $\varsigma_k[t]$, which are functions of $(\mathcal H_t,\mathcal X^{\rm I}[t])$ and are therefore decided before $\mathbf h[t]$ is realized; once $\mathbf h[t]$ is known, $\mathcal X^{\rm II}[t]$ follows fixed rules rather than an optimization: equal power split among the served users, regularized zero-forcing for the communication streams, and a steering beam toward the targets for the sensing stream. With unit-norm directions $\hat{\mathbf d}_{k,j}[t]$ and $\hat{\mathbf d}_{k,r}[t]$, the beamformers are
+\begin{equation}\label{eq:restricted_beams}
+\begin{aligned}
+\mathbf w_{k,j}[t]&=\sqrt{\tfrac{(1-\varsigma_k[t])P_{\max}}{|\mathcal M_k[t]|}}\,\hat{\mathbf d}_{k,j}[t],\quad j\in\mathcal M_k[t],\\
+\mathbf w_{k,r}[t]&=\sqrt{\varsigma_k[t]P_{\max}}\,\hat{\mathbf d}_{k,r}[t],
+\end{aligned}
+\end{equation}
+with $\varsigma_k[t]=1$ if $\mathcal M_k[t]=\emptyset$. Hence $\operatorname{tr}(\mathbf R_k[t])=P_{\max}$ always, i.e., \eqref{C4} holds with equality, and the learned policy belongs to a subclass $\mathfrak P_{\rm res}\subset\mathfrak P$.
 
 
 \subsection{Performance Metrics}
@@ -449,13 +465,13 @@ where $R_m[t]$ is given in Section~\ref{sec:model}. Normalizing by $\sum_m\omega
 \begin{equation}
 \bar C[t]=\frac{1}{N\,\Gamma_{\rm cap}}\sum_{n\in\mathcal N}\widetilde{\mathrm{CRB}}_n\big(\{\mathbf p_k[t],\mathbf R_k[t]\}\big)\in(0,1].
 \end{equation}
-The targets are static and the bound depends on the beamformers only through $\mathbf R_k[t]$; since the beamformers use $\mathbf h[t]$, $\bar C[t]$ is random through the fading. To stay conservative, the bound is evaluated slot by slot, and the information collected on the static targets is not accumulated across slots.
+The targets are static and the bound depends on the beamformers only through $\mathbf R_k[t]$; since the beamformers use $\mathbf h[t]$, $\bar C[t]$ is random through the fading. The bound is evaluated slot by slot, so the information collected on the static targets is not accumulated across slots, which is conservative with respect to the accumulated bound of a tracking filter. The clipping, by contrast, is not conservative: whenever $\mathrm{CRB}_n[t]>\Gamma_{\rm cap}$ the metric reports $\Gamma_{\rm cap}$ instead of the true bound, so $\bar C[t]$ is optimistic in that regime.
 
 \subsection{Problem Statement}
 
 With the trade-off weight $\mu\ge 0$, the mission problem is
 \begin{align}
-\max_{\mathcal{P}}\quad & \mathbb E_{\mathcal{P}}\Big[\frac1T\sum_{t=0}^{T-1}\Big(\bar R[t]-\mu\,\bar C[t]\Big)\Big] \label{opt:main}\\
+\max_{\mathcal{P}\in\mathfrak P}\quad & \mathbb E_{\mathcal{P}}\Big[\frac1T\sum_{t=0}^{T-1}\Big(\bar R[t]-\mu\,\bar C[t]\Big)\Big] \label{opt:main}\\
 \text{s.t.}\quad & \|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t, \ \forall k,\,t\le T-2, \tag{C1}\label{C1}\\
 & \mathbf p_k[t]\in\mathcal A\times[z_{\min},z_{\max}], \ \forall k,\,t, \tag{C2}\label{C2}\\
 & \|\mathbf p_k[t]-\mathbf p_{k'}[t]\|\ge d_{\min}, \ \forall k\neq k',\,t, \tag{C3}\label{C3}\\
@@ -464,7 +480,7 @@ With the trade-off weight $\mu\ge 0$, the mission problem is
 
 where the expectation is over the user mobility and the small-scale fading, the constraints must hold almost surely, and $\mathbf p_k[0]$ is given.
 
-The objective~\eqref{opt:main} is the time-averaged weighted spectral efficiency minus $\mu$ times the normalized localization bound: $\mu=0$ recovers pure communication, and a larger $\mu$ shifts resources to sensing. Because $\bar R$ is in bit/s/Hz and $\bar C\in(0,1]$, the value of $\mu$ has to be calibrated against the typical magnitude of $\bar R$. Constraints~\eqref{C1} and~\eqref{C2} describe the UAV kinematics and flight volume, and~\eqref{C3} is the collision-avoidance requirement. The power budget~\eqref{C4} limits the total power of each UAV, shared by the communication and sensing streams, and it must hold for every fading realization. The association is not part of the policy: it is fixed by the position-based rule~\eqref{eq:assoc}, under which user $m$ takes its desired signal from the single UAV $k(m)$, while the streams that the other UAVs send to their own users, together with all sensing streams, become interference.
+The objective~\eqref{opt:main} is the time-averaged weighted spectral efficiency minus $\mu$ times the normalized localization bound: $\mu=0$ recovers pure communication, and a larger $\mu$ shifts resources to sensing. Because $\bar R$ is in bit/s/Hz and $\bar C\in(0,1]$, the value of $\mu$ has to be calibrated against the typical magnitude of $\bar R$. Constraints~\eqref{C1} and~\eqref{C2} describe the UAV kinematics and flight volume, and~\eqref{C3} is the collision-avoidance requirement. The power budget~\eqref{C4} limits the total power of each UAV, shared by the communication and sensing streams, and it must hold for every fading realization. The association is not part of the policy: it is fixed by the position-based rule~\eqref{eq:assoc}, under which user $m$ takes its desired signal from the single UAV $k(m)$, while the streams that the other UAVs send to their own users, together with all sensing streams, become interference. Section~\ref{sec:method} optimizes~\eqref{opt:main} over the restricted class $\mathfrak P_{\rm res}\subset\mathfrak P$ of Section~\ref{sec:info}, so its value lower-bounds the optimum over $\mathfrak P$.
 
 
 \subsection{Challenges}
@@ -503,7 +519,34 @@ State the convergence guarantee of Algorithm~\ref{alg:proposed}, e.g., a monoton
 \section{Simulation Results}\label{sec:results}
 
 \subsection{Simulation Setup}
-Describe the experimental setup: parameters, baselines, and evaluation metrics. Specify the simulator or dataset, the parameter ranges swept, the baselines chosen together with their citations, and the hardware and runtime environment, so that the results can be reproduced. Unless stated otherwise, each point is averaged over enough random seeds to keep the confidence intervals within the line width of the plots.
+The simulator is a Python environment built on Gymnasium and NumPy, in which every slot of Sections~\ref{sec:model}--\ref{sec:problem} is implemented directly: the A2G channels are drawn at the current positions, the association follows~\eqref{eq:assoc}, the transmit covariances are produced by the beamformers of Section~\ref{sec:info}, and the slot metrics $\bar R[t]$ and $\bar C[t]$ are evaluated from the received SINR and the position CRB. Users and targets are dropped uniformly at random in the service area at the beginning of each episode, the UAVs start from feasible positions in the flight volume, and their positions then evolve under \eqref{C1}--\eqref{C3}. Unless stated otherwise, the parameters of Table~\ref{tab:params} are used, $\mu=10$, and each reported value is averaged over independent episodes with different seeds.
+
+At $\mu=10$ the two terms of~\eqref{opt:main} are of comparable magnitude and the trade-off is active; smaller $\mu$ moves the operating point towards pure communication.
+
+\begin{table}[!t]
+\caption{Simulation Parameters}
+\label{tab:params}
+\centering
+\small
+\begin{tabular}{@{}ll@{\hspace{1.2em}}ll@{}}
+\toprule
+Parameter & Value & Parameter & Value\\
+\midrule
+$K$, $M$, $N$ & 4, 8, 4 & $N_t$, $d_a$ & 10, $\lambda/2$\\
+$\mathcal A$ & $1\times1$ km$^2$ & $z_{\min}$, $z_{\max}$ & 100, 120 m\\
+$d_{\min}$ & 20 m & $\Delta t$ & 0.1 s\\
+$T$ & 1000 & $v_{\max}$ & 30 m/s\\
+$v^{\rm u}_{\max}$ & 5 m/s & $\sigma_{\rm u}$ & 1 m/s\\
+$\tau_{\rm v}$ & 5 s & $f_c$ & 28 GHz\\
+$B$ ($B_{\rm rms}$) & 100 MHz ($B/\sqrt{12}$) & $P_{\max}$ & 30 dBm\\
+$\sigma^2$, $\sigma_r^2$ & $-84$ dBm & $T_s$ & 1 ms\\
+$N_s=BT_s$ & $10^5$ & $\sigma_{\rm rcs}$ & 1 m$^2$\\
+$\kappa$ & 10 dB & $a$, $b$ & 9.61, 0.16\\
+$\eta_{\rm L}$, $\eta_{\rm N}$ & 2, 3 & $d_0$ & 1 m\\
+$\Gamma_{\rm cap}$ & 100 m$^2$ & $\mu$ & 10\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{figure*}[!t]
 \centering
