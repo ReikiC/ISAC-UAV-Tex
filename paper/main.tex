@@ -169,9 +169,13 @@ placeholder
 
 We consider the multi-UAV mmWave ISAC network illustrated in Fig.~\ref{fig:system}. The network consists of $K$ UAVs ($\mathcal K=\{1,2,\ldots,K\}$), $M$ ground users ($\mathcal M$), $N$ static ground targets ($\mathcal N$), and a central controller (CC) hosted by a leader UAV. 
 
-Each UAV is equipped with $N_{t}$-element uniform linear arrays (ULAs) and flying at a designed altitude band. The number of antennas satisfies $N_t\ge M+1$. All ground users move according to the correlated random walk model in Section~\ref{sec:user_mobility} and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The backhaul between the UAVs and the CC is considered error-free and delay-free. The CC collects global state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. 
+Each UAV is equipped with an $N_t$-element uniform linear array (ULA) and flies within a designed altitude band. The number of antennas satisfies $N_t\ge M+1$. All ground users move according to the correlated random walk model in Section~\ref{sec:user_mobility} and each is equipped with a single antenna, whereas the ground targets are static passive reflectors that carry no transceiver. The backhaul between the UAVs and the CC is considered error-free and delay-free. The CC collects global state information, runs the trajectory, power, and beamforming policy, and returns the resulting control to the UAVs. 
 
-The mission horizon is divided into $T$ slots of duration $\Delta t$. Let $t\in\{0,1,\ldots,T-1\}$ denote the slot index. Throughout the paper, the slot index $[t]$ is omitted whenever no ambiguity arises. In every slot, each user $m$ is associated with exactly one UAV, denoted by $k(m)\in\mathcal K$, so that the set of users served by UAV $k$ is $\mathcal M_k=\{m:k(m)=k\}$; the rule that fixes $k(m)$ is given in~\eqref{eq:assoc}. Each UAV transmits one communication stream to each user in $\mathcal M_k$ and one dedicated sensing stream, and it receives the target echoes of that transmission.
+We consider a mission horizon of $T\Delta t$ seconds, which is partitioned into $T$ non-overlapping slots of equal duration $\Delta t$. Slot $t\in\mathcal T\triangleq\{0,1,\ldots,T-1\}$ spans the interval $[t\Delta t,(t+1)\Delta t)$. $\Delta t$ is sufficiently small; the geometry and channel within the timeslot are considered to remain constant, and are represented by the position at the start of the timeslot.Throughout the paper, the slot index $[t]$ is omitted whenever no ambiguity arises. In every slot, each user $m$ is associated with exactly one UAV, denoted by $k(m)\in\mathcal K$, so that the set of users served by UAV $k$ is $\mathcal M_k=\{m:k(m)=k\}$; the rule that fixes $k(m)$ is given in~\eqref{eq:assoc}. Each UAV transmits one communication stream to each user in $\mathcal M_k$ and one dedicated sensing stream, and it receives the target echoes of that transmission.
+
+
+
+%  Accordingly, $\mathbf p_k[0]$ is given, $\mathbf p_k[T]$ is not defined, and the kinematic constraint \eqref{C1} applies for $t=0,\ldots,T-2$. Slot $0$ is a decision slot for the beamformers only; the first trajectory decision is $\mathbf p_k[1]$ at slot $1$. There are therefore $T$ beamformer decisions and $T-1$ trajectory decisions.
 
 \subsection{Coordinate System and Kinematics}
 
@@ -182,7 +186,7 @@ All positions are expressed in a common right-handed Cartesian coordinate system
 \mathbf u_m[t]&=\big(x_m[t],\,y_m[t],\,0\big)^T,\\
 \mathbf q_n&=\big(x_n,\,y_n,\,0\big)^T,
 \end{align}
-respectively. The targets are static, and the users move according to the correlated random walk described in Section~\ref{sec:user_mobility}. 
+respectively, where $\mathbf p_k[t]$, $\mathbf u_m[t]$ denote the positions at time $t\Delta t$, i.e., at the beginning of slot $t$. The targets are static, and the users move according to the correlated random walk described in Section~\ref{sec:user_mobility}.
 
 \subsubsection{Link Geometry}
 For a link from point $\mathbf o_1$ to point $\mathbf o_2$, let $\mathbf r=\mathbf o_2-\mathbf o_1=(r_x,r_y,r_z)^T$. The link distance, azimuth angle, and elevation angle are
@@ -219,6 +223,8 @@ and the two-dimensional horizontal position $\tilde{\mathbf u}_m[t+1]\in\mathbb 
 \begin{equation}\label{eq:user_pos}
 \tilde{\mathbf u}_m[t+1]=\big(x_m[t],\,y_m[t]\big)^T+\mathbf v^{\rm u}_m[t+1]\,\Delta t.
 \end{equation}
+Here, $\mathbf v^{\rm u}_m[t]$ is the velocity state at time $t\Delta t$. The updates \eqref{eq:user_vel}--\eqref{eq:user_pos} thus form a right-endpoint (implicit) discretization: $\mathbf v^{\rm u}_m[t+1]$, the velocity at time $(t+1)\Delta t$, is used to move from $\mathbf u_m[t]$ to $\mathbf u_m[t+1]$.
+
 Let $\tilde x_m$ and $\tilde y_m$ denote the two components of $\tilde{\mathbf u}_m[t+1]$. To keep the users inside $\mathcal A$, a reflecting boundary is applied to each coordinate. For the $x$-coordinate, with range $[0,L_x]$,
 \begin{equation}
 x_m[t+1]=
@@ -227,11 +233,11 @@ x_m[t+1]=
 2L_x-\tilde x_m, & \tilde x_m>L_x,\\
 \tilde x_m, & \text{otherwise},
 \end{cases}
+\label{eq:user_reflect}
 \end{equation}
 and in the first two cases the $x$-component of $\mathbf v^{\rm u}_m[t+1]$ changes sign. The $y$-coordinate obeys the same rule with $x$, $\tilde x_m$, and $L_x$ replaced by $y$, $\tilde y_m$, and $L_y$. Since the per-slot displacement $v^{\rm u}_{\max}\Delta t\ll\min\{L_x,L_y\}$, a single reflection per coordinate suffices. The initial positions are drawn uniformly over $\mathcal A$, and the initial velocities are drawn from $\mathcal N(\mathbf 0,\sigma_{\rm u}^2\mathbf I_2)$ and capped by the same rescaling as in \eqref{eq:user_clip}; with $v^{\rm u}_{\max}\gtrsim 4\sigma_{\rm u}$, the speed cap and the boundary reflections perturb this distribution only marginally, so that the velocity remains approximately stationary.
 
 The users are assumed to be much slower than the UAVs, i.e., $v^{\rm u}_{\max}\ll v_{\max}$, so that the UAVs are able to track them. Unlike the UAV trajectories, the user trajectories are exogenous random processes and are not decision variables. The user positions $\{\mathbf u_m[t]\}$ are known to the CC at the beginning of slot $t$, whereas their future positions are unknown, and only the statistics in \eqref{eq:user_vel}--\eqref{eq:user_pos} are available.
-
 
 \subsection{A2G mmWave Channel Model}\label{sec:channel}
 
@@ -289,7 +295,7 @@ and its total transmit power is
 
 To characterize how each UAV allocates its power between the two functions, we define the \emph{sensing power fraction}
 \begin{equation}
-\varsigma_k\triangleq\frac{\|\mathbf w_{k,r}\|^2}{\operatorname{tr}(\mathbf R_k)}\in[0,1], \quad \forall k\in\mathcal K.
+\varsigma_k\triangleq\frac{\|\mathbf w_{k,r}\|^2}{\operatorname{tr}(\mathbf R_k)}\in[0,1], \quad \forall k\in\mathcal K\ \text{with}\ \operatorname{tr}(\mathbf R_k)>0.
 \end{equation}
 
 Accordingly, the power budget of each UAV for the communication mission is
