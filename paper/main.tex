@@ -310,13 +310,14 @@ and that for the sensing mission by
 A larger $\varsigma_k$ therefore shifts power from communication to sensing: $\varsigma_k=0$ corresponds to pure communication, while $\varsigma_k=1$ corresponds to pure sensing via the dedicated sensing stream.
 
 The desired signal power of user $m$ is $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$. The interference at user $m$ consists of three parts: (i) multiuser interference (MUI) from the other communication streams of the serving UAV, (ii) inter-UAV interference from the communication streams that the non-serving UAVs send to their own users, and (iii) sensing-induced interference from the sensing beams of all UAVs, i.e.,
-\begin{equation}
+\begin{equation}\label{eq:interference}
 \begin{aligned}
-I_m={}&\sum_{k\in\mathcal K}\sum_{j\in\mathcal M_k}\big|\mathbf h_{k,m}^H\mathbf w_{k,j}\big|^2\,\mathbf 1\big\{(k,j)\neq(k(m),m)\big\}\\
+I_m={}&\sum_{k\in\mathcal K}\ \sum_{j\in\mathcal M_k\setminus\{m\}}\big|\mathbf h_{k,m}^H\mathbf w_{k,j}\big|^2\\
 &+\sum_{k\in\mathcal K}\big|\mathbf h_{k,m}^H\mathbf w_{k,r}\big|^2.
 \end{aligned}
 \end{equation}
-where the indicator removes exactly the desired stream of user $m$, i.e., the pair $(k,j)=(k(m),m)$, from the interference sum.
+where the inner sum excludes $j=m$: since $m\in\mathcal M_{k(m)}$ while $m\notin\mathcal M_k$ for $k\neq k(m)$, this removes exactly the desired stream of user $m$, i.e., the pair $(k,j)=(k(m),m)$, from the interference sum.
+The last term in \eqref{eq:interference} is the sensing leakage. With local CSI, UAV $k$ can null the $k=k(m)$ term for each of its served users by projecting its sensing beam onto the orthogonal complement of the served-user channel subspace, at the cost of a smaller sensing array gain; Sec.~\ref{sec:info} adopts this projection as a fixed beamforming rule.
 The received SINR $\gamma_m$ and the achievable rate $R_m$ of user $m$ are then given by
 \begin{equation}
 \gamma_m=\frac{S_m}{\sigma^2+I_m},\qquad R_m=B\log_2(1+\gamma_m),
@@ -443,7 +444,7 @@ A \emph{policy} $\mathcal P$ is the collection of these two mappings over all sl
 \end{equation}
 The beamformers determine the transmit covariance $\mathbf R_k[t]$ of Section~\ref{sec:model}.
 
-\emph{Restricted policy class.} The class~\eqref{eq:policy} leaves the beamformers free to depend on the instantaneous CSI. For tractability we learn, instead, only the displacements together with the sensing power fractions $\varsigma_k[t]$, which are functions of $(\mathcal H_t,\mathcal X^{\rm I}[t])$ and are therefore decided before $\mathbf h[t]$ is realized; once $\mathbf h[t]$ is known, $\mathcal X^{\rm II}[t]$ follows fixed rules rather than an optimization: equal power split among the served users, regularized zero-forcing for the communication streams, and a steering beam toward the targets for the sensing stream. With unit-norm directions $\hat{\mathbf d}_{k,j}[t]$ and $\hat{\mathbf d}_{k,r}[t]$, the beamformers are
+\emph{Restricted policy class.} The class~\eqref{eq:policy} leaves the beamformers free to depend on the instantaneous CSI. For tractability we learn, instead, only the displacements together with the sensing power fractions $\varsigma_k[t]$, which are functions of $(\mathcal H_t,\mathcal X^{\rm I}[t])$ and are therefore decided before $\mathbf h[t]$ is realized; once $\mathbf h[t]$ is known, $\mathcal X^{\rm II}[t]$ follows fixed rules rather than an optimization: equal power split among the served users, regularized zero-forcing for the communication streams, and a sensing direction that either steers toward the targets or is projected onto the orthogonal complement of the served-user channels. With unit-norm directions $\hat{\mathbf d}_{k,j}[t]$ and $\hat{\mathbf d}_{k,r}[t]$, the beamformers are
 \begin{equation}\label{eq:restricted_beams}
 \begin{aligned}
 \mathbf w_{k,j}[t]&=\sqrt{\tfrac{(1-\varsigma_k[t])P_{\max}}{|\mathcal M_k[t]|}}\,\hat{\mathbf d}_{k,j}[t],\quad j\in\mathcal M_k[t],\\
@@ -451,6 +452,14 @@ The beamformers determine the transmit covariance $\mathbf R_k[t]$ of Section~\r
 \end{aligned}
 \end{equation}
 with $\varsigma_k[t]=1$ if $\mathcal M_k[t]=\emptyset$. Hence $\operatorname{tr}(\mathbf R_k[t])=P_{\max}$ always, i.e., \eqref{C4} holds with equality, and the learned policy belongs to a subclass $\mathfrak P_{\rm res}\subset\mathfrak P$.
+
+The sensing direction in \eqref{eq:restricted_beams} is selected by a binary switch $\iota\in\{0,1\}$. Let $\bar{\mathbf d}_{k,r}[t]\neq\mathbf 0$ be a fixed superposition of the target steering vectors, and let $\mathbf Q_k[t]\in\mathbb C^{N_t\times S_k}$, with $S_k=|\mathcal M_k[t]|$, be an orthonormal basis of $\operatorname{span}\{\mathbf h_{k,j}[t]\}_{j\in\mathcal M_k[t]}$. Then
+\begin{equation}\label{eq:nullspace_dir}
+\hat{\mathbf d}^{(\iota)}_{k,r}[t]=
+\frac{\big(\mathbf I-\iota\,\mathbf Q_k[t]\mathbf Q_k[t]^H\big)\bar{\mathbf d}_{k,r}[t]}
+{\big\|\big(\mathbf I-\iota\,\mathbf Q_k[t]\mathbf Q_k[t]^H\big)\bar{\mathbf d}_{k,r}[t]\big\|},
+\end{equation}
+and $\hat{\mathbf d}_{k,r}[t]=\hat{\mathbf d}^{(\iota)}_{k,r}[t]$ in \eqref{eq:restricted_beams}. For $\iota=0$, \eqref{eq:nullspace_dir} reduces to pure steering, $\hat{\mathbf d}^{(0)}_{k,r}[t]=\bar{\mathbf d}_{k,r}[t]/\|\bar{\mathbf d}_{k,r}[t]\|$. For $\iota=1$, it removes from $\bar{\mathbf d}_{k,r}[t]$ its projection onto the served-user channel subspace. If the norm in the denominator of \eqref{eq:nullspace_dir} falls below $\epsilon\|\bar{\mathbf d}_{k,r}[t]\|$ for a small tolerance $\epsilon>0$, the projection is numerically rank-deficient and we fall back to the unprojected direction. Whenever this fallback is not triggered, the resulting beam satisfies $\mathbf h_{k,j}^H[t]\mathbf w_{k,r}[t]=0$ for every $j\in\mathcal M_k[t]$, so the $k=k(m)$ term of the sensing-induced interference in $I_m$ vanishes, at the cost of a smaller sensing array gain. The projection does not change $\varsigma_k[t]$ or the power budget, and it does not protect the users served by other UAVs. Since $\hat{\mathbf d}_{k,r}[t]$ is computed from $\mathbf h[t]$, the switch belongs to $\mathcal X^{\rm II}[t]$; $\iota$ is fixed per experiment and is not a learned action.
 
 
 \subsection{Performance Metrics}
@@ -519,7 +528,7 @@ State the convergence guarantee of Algorithm~\ref{alg:proposed}, e.g., a monoton
 \section{Simulation Results}\label{sec:results}
 
 \subsection{Simulation Setup}
-The simulator is a Python environment built on Gymnasium and NumPy, in which every slot of Sections~\ref{sec:model}--\ref{sec:problem} is implemented directly: the A2G channels are drawn at the current positions, the association follows~\eqref{eq:assoc}, the transmit covariances are produced by the beamformers of Section~\ref{sec:info}, and the slot metrics $\bar R[t]$ and $\bar C[t]$ are evaluated from the received SINR and the position CRB. Users and targets are dropped uniformly at random in the service area at the beginning of each episode, the UAVs start from feasible positions in the flight volume, and their positions then evolve under \eqref{C1}--\eqref{C3}. Unless stated otherwise, the parameters of Table~\ref{tab:params} are used, $\mu=10$, and each reported value is averaged over independent episodes with different seeds.
+The simulator is a Python environment built on Gymnasium and NumPy, in which every slot of Sections~\ref{sec:model}--\ref{sec:problem} is implemented directly: the A2G channels are drawn at the current positions, the association follows~\eqref{eq:assoc}, the transmit covariances are produced by the beamformers of Section~\ref{sec:info}, and the slot metrics $\bar R[t]$ and $\bar C[t]$ are evaluated from the received SINR and the position CRB. Users and targets are dropped uniformly at random in the service area at the beginning of each episode, the UAVs start from feasible positions in the flight volume, and their positions then evolve under \eqref{C1}--\eqref{C3}. Unless stated otherwise, the parameters of Table~\ref{tab:params} are used, $\mu=10$, the null-space switch is $\iota=1$, and each reported value is averaged over independent episodes with different seeds. The pure-steering case $\iota=0$ is used as the ablation baseline; it changes only this switch, with the same seeds, trajectories, and power fractions.
 
 At $\mu=10$ the two terms of~\eqref{opt:main} are of comparable magnitude and the trade-off is active; smaller $\mu$ moves the operating point towards pure communication.
 
@@ -543,7 +552,7 @@ $\sigma^2$, $\sigma_r^2$ & $-84$ dBm & $T_s$ & 1 ms\\
 $N_s=BT_s$ & $10^5$ & $\sigma_{\rm rcs}$ & 1 m$^2$\\
 $\kappa$ & 10 dB & $a$, $b$ & 9.61, 0.16\\
 $\eta_{\rm L}$, $\eta_{\rm N}$ & 2, 3 & $d_0$ & 1 m\\
-$\Gamma_{\rm cap}$ & 100 m$^2$ & $\mu$ & 10\\
+$\Gamma_{\rm cap}$ & 100 m$^2$ & $\mu$, $\iota$ & 10, 1\\
 \bottomrule
 \end{tabular}
 \end{table}
