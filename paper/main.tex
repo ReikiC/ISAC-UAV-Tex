@@ -380,7 +380,7 @@ Partition $\mathbf J_n$ into blocks according to the position and nuisance param
 \mathbf J_n=\begin{bmatrix}\mathbf J_{pp,n} & \mathbf J_{p\nu,n}\\ \mathbf J_{p\nu,n}^T & \mathbf J_{\nu\nu,n}\end{bmatrix},
 \end{equation}
 where $\mathbf J_{pp,n}\in\mathbb R^{2\times2}$ is the position block and already contains the delay-induced term $\mathbf J^{\rm del}_n$, while $\mathbf J_{p\nu,n}$ and $\mathbf J_{\nu\nu,n}$ are associated with the nuisance parameters. Eliminating the nuisance parameters via the Schur complement, the position CRB of target $n$ is
-\begin{equation}
+\begin{equation}\label{eq:crb}
 \mathrm{CRB}_n=\operatorname{tr}\!\Big[\big(\mathbf J_{pp,n}-\mathbf J_{p\nu,n}\mathbf J_{\nu\nu,n}^{-1}\mathbf J_{p\nu,n}^T\big)^{-1}\Big]\quad[\mathrm{m}^2],
 \end{equation}
 Because the common phase of $\alpha_{k,n}$ cancels in every block, the CRB is independent of the reflection phase $\psi_n$ and of the propagation phases $4\pi d_{k,n}/\lambda$. Hence the coherent-fusion assumption enters only through the shared nuisance pair. Since the position dependence of $\alpha_{k,n}$ is discarded, the resulting bound is conservative with respect to the full signal model, which would additionally exploit the carrier phase and the amplitude variation.
@@ -471,10 +471,10 @@ and $\hat{\mathbf d}_{k,r}[t]=\hat{\mathbf d}^{(\iota)}_{k,r}[t]$ in \eqref{eq:r
 where $R_m[t]$ is given in Section~\ref{sec:model}. Normalizing by $\sum_m\omega_m$ makes $\bar R[t]$ independent of $M$ and of the scale of $\omega$.
 
 \textbf{Sensing metric.} The capped bound $\widetilde{\mathrm{CRB}}_n[t]=\min\{\mathrm{CRB}_n[t],\Gamma_{\rm cap}\}$ is normalized by $\Gamma_{\rm cap}$:
-\begin{equation}
-\bar C[t]=\frac{1}{N\,\Gamma_{\rm cap}}\sum_{n\in\mathcal N}\widetilde{\mathrm{CRB}}_n\big(\{\mathbf p_k[t],\mathbf R_k[t]\}\big)\in(0,1].
+\begin{equation}\label{eq:metric_c}
+\bar C[t]=\frac{1}{|\mathcal N|\,\Gamma_{\rm cap}}\sum_{n\in\mathcal N}\widetilde{\mathrm{CRB}}_n[t]\in(0,1],
 \end{equation}
-The targets are static and the bound depends on the beamformers only through $\mathbf R_k[t]$; since the beamformers use $\mathbf h[t]$, $\bar C[t]$ is random through the fading. The bound is evaluated slot by slot, so the information collected on the static targets is not accumulated across slots, which is conservative with respect to the accumulated bound of a tracking filter. The clipping, by contrast, is not conservative: whenever $\mathrm{CRB}_n[t]>\Gamma_{\rm cap}$ the metric reports $\Gamma_{\rm cap}$ instead of the true bound, so $\bar C[t]$ is optimistic in that regime.
+where $\widetilde{\mathrm{CRB}}_n[t]$ is the capped bound of~\eqref{eq:crb} evaluated at the slot-$t$ geometry and covariances. The targets are static and the bound depends on the beamformers only through $\mathbf R_k[t]$; since the beamformers use $\mathbf h[t]$, $\bar C[t]$ is random through the fading. The bound is evaluated slot by slot, so the information collected on the static targets is not accumulated across slots, which is conservative with respect to the accumulated bound of a tracking filter. The clipping, by contrast, is not conservative: whenever $\mathrm{CRB}_n[t]>\Gamma_{\rm cap}$ the metric reports $\Gamma_{\rm cap}$ instead of the true bound, so $\bar C[t]$ is optimistic in that regime.
 
 \subsection{Problem Statement}
 
