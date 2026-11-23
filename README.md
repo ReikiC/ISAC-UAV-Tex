@@ -37,6 +37,24 @@ latexmk -xelatex main.tex
 
 **VS Code：** 打开 `paper/main.tex`，保存（⌘S）即自动编译；`⌘⌥V` 打开 PDF 预览，支持正反向跳转。
 
+### Windows（TeX Live）
+
+本仓库已通过 `.vscode/settings.json` 中的 `"windows"` 平台覆盖段支持 Windows，
+默认使用 TeX Live 2026 安装到 `C:\texlive\2026\bin\windows` 的配置，
+无需手动修改 macOS 端的设置，也无需把 TeX Live 加入系统 `PATH`：
+
+- 默认 recipe（recipe 指编译方式）：`XeLaTeX (latexmk)`，等价于 `latexmk -xelatex`；
+- 备用 recipe：`XeLaTeX -> BibTeX -> XeLaTeX*2`、`PDFLaTeX (latexmk)`（英文定稿用）；
+- 打开 `paper/main.tex`，按 `Ctrl+S` 自动编译，`Ctrl+Alt+V` 打开 PDF 预览；
+- 若把 TeX Live 装到了其他位置，改 `"windows"` 段里的 `C:\\texlive\\2026\\bin\\windows` 即可。
+
+命令行（未加入 PATH 时）：
+
+```powershell
+cd paper
+C:\texlive\2026\bin\windows\latexmk.exe -xelatex main.tex
+```
+
 ## 开新论文
 
 1. 从本模板仓库新建仓库（或复制 `paper/` 目录）；
