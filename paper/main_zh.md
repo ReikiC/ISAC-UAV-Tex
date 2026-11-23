@@ -1,4 +1,4 @@
-# 多无人机毫米波 ISAC 网络（论文正文中文版）
+﻿# 多无人机毫米波 ISAC 网络（论文正文中文版）
 
 > 说明：本文档由 `paper/main.tex` 中**已成稿**的正文翻译整理而来，公式保持原始 LaTeX 记号（可直接复制回 tex）。文中公式编号（如式 (17)、式 (38)、式 (51)）沿用 `main.tex` 当前编译出的编号，与 `main.pdf` 一致；本文档内的公式块未另行编号。
 > 纯模板/占位内容**未翻译**，仅在相应位置标注，包括：标题与作者块、摘要段、关键词、Introduction 的模板说明文字与 37 处 `placeholder` 段、Algorithm 1 的模板伪代码、`Proposed Method` 的说明性文字、Simulation Results 中的示例表 `tab:comparison`、Conclusion 的模板段、Acknowledgment。另有被注释掉的 Assumptions 列表与一条时隙索引注释（`main.tex` 第 394–408 行、第 178 行），不属于正文，未纳入。
@@ -317,7 +317,7 @@ $$
 
 除上述几何退化外，当目标仅被单个流照射时 $\mathbf J_n$ 也会降秩：秩一的 $\mathbf R_k$ 经式 (36) 至多贡献两个实维度、经式 (37) 贡献一个实维度，故 $\operatorname{rank}(\mathbf J_n)\le3$，无论几何如何 CRB 都无界；而单机两个流，或两机各一个流，即可恢复满秩。
 
-在下文中，感知指标采用截断后的界 $\widetilde{\mathrm{CRB}}_n=\min\{\mathrm{CRB}_n,\Gamma_{\rm cap}\}$：如上述两种情形中 $\mathbf J_n$ 奇异或病态的目标被赋值为 $\Gamma_{\rm cap}$，以保证指标有限。
+下文中，$\Gamma_{\rm cap}$ 表示感知需求，即单个目标可接受的位置 CRB 上限。它只作为 3.3 节的精度约束 (C5) 进入问题，从不对感知指标做缩放。上述两种情形中的目标 CRB 无界，因而对任何波束成形器都不满足该需求。仅为数值评估，无界的取值被替换为远大于 $\Gamma_{\rm cap}$ 的有限常数 $\Gamma_{\rm num}$：这使平均指标保持有限，并对该类配置给出最强的惩罚；$\Gamma_{\rm num}$ 不属于问题陈述，其取值不影响可行集。
 
 ---
 
@@ -379,13 +379,13 @@ $$
 
 其中 $R_m[t]$ 见 2.4 节。按 $\sum_m\omega_m$ 归一化使 $\bar R[t]$ 与 $M$ 以及 $\omega$ 的尺度无关。
 
-**感知指标。** 截断后的界 $\widetilde{\mathrm{CRB}}_n[t]=\min\{\mathrm{CRB}_n[t],\Gamma_{\rm cap}\}$ 按 $\Gamma_{\rm cap}$ 归一化：
+**感知指标。** 位置界对目标取平均，并保留物理量纲：
 
 $$
-\bar C[t]=\frac{1}{|\mathcal N|\,\Gamma_{\rm cap}}\sum_{n\in\mathcal N}\widetilde{\mathrm{CRB}}_n[t]\in(0,1],
+\overline{\mathrm{CRB}}[t]=\frac{1}{|\mathcal N|}\sum_{n\in\mathcal N}\mathrm{CRB}_n[t]\quad[\mathrm{m}^2],
 $$
 
-其中 $\widetilde{\mathrm{CRB}}_n[t]$ 是式 (40) 的截断界在时隙 $t$ 的几何与协方差下的取值。目标是静止的，且该界仅通过 $\mathbf R_k[t]$ 依赖波束成形器；由于波束成形器使用 $\mathbf h[t]$，$\bar C[t]$ 因衰落而随机。该界逐时隙评估，故对静止目标所获信息不跨时隙累积，这相对于跟踪滤波器的累积界是保守的。相反，截断并不保守：一旦 $\mathrm{CRB}_n[t]>\Gamma_{\rm cap}$，指标报告的是 $\Gamma_{\rm cap}$ 而非真实界，因此在该区间内 $\bar C[t]$ 是乐观的。
+其中 $\mathrm{CRB}_n[t]$ 是式 (40) 的界在时隙 $t$ 的几何与协方差下的取值。与频谱效率不同，该指标不按 $\Gamma_{\rm cap}$ 归一化，故其量纲即界的量纲。目标是静止的，且该界仅通过 $\mathbf R_k[t]$ 依赖波束成形器；由于波束成形器使用 $\mathbf h[t]$，$\overline{\mathrm{CRB}}[t]$ 因衰落而随机。该界逐时隙评估，故对静止目标所获信息不跨时隙累积，这相对于跟踪滤波器的累积界是保守的。需求 $\Gamma_{\rm cap}$ 则通过违规率 $r[t]=\frac{1}{|\mathcal N|}\sum_{n\in\mathcal N}\mathbf 1\{\mathrm{CRB}_n[t]>\Gamma_{\rm cap}\}$ 单独施加，即在时隙 $t$ 中其界超过需求的目标占比；$r[t]$ 就是约束 (C5) 所约束的量。
 
 ### 3.3 问题陈述
 
@@ -393,17 +393,18 @@ $$
 
 $$
 \begin{aligned}
-\max_{\mathcal{P}\in\mathfrak P}\quad & \mathbb E_{\mathcal{P}}\Big[\frac1T\sum_{t=0}^{T-1}\Big(\bar R[t]-\mu\,\bar C[t]\Big)\Big] \\
+\max_{\mathcal{P}\in\mathfrak P}\quad & \mathbb E_{\mathcal{P}}\Big[\frac1T\sum_{t=0}^{T-1}\Big(\bar R[t]-\mu\,\overline{\mathrm{CRB}}[t]\Big)\Big] \\
 \text{s.t.}\quad & \|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t, \ \forall k,\,t\le T-2, \tag{C1}\\
 & \mathbf p_k[t]\in\mathcal A\times[z_{\min},z_{\max}], \ \forall k,\,t, \tag{C2}\\
 & \|\mathbf p_k[t]-\mathbf p_{k'}[t]\|\ge d_{\min}, \ \forall k\neq k',\,t, \tag{C3}\\
-& \operatorname{tr}(\mathbf R_k[t])\le P_{\max}, \ \forall k,\,t, \tag{C4}
+& \operatorname{tr}(\mathbf R_k[t])\le P_{\max}, \ \forall k,\,t, \tag{C4}\\
+& \mathbb E_{\mathcal{P}}\Big[\frac1T\sum_{t=0}^{T-1}r[t]\Big]\le\varepsilon, \tag{C5}
 \end{aligned}
 $$
 
-其中期望针对用户移动性与小尺度衰落，约束须几乎必然成立，且 $\mathbf p_k[0]$ 已给定。
+其中期望针对用户移动性与小尺度衰落，约束 (C1)–(C4) 须几乎必然成立，(C5) 是对平均违规率的要求，且 $\mathbf p_k[0]$ 已给定。
 
-目标 (51) 是时间平均加权频谱效率减去 $\mu$ 倍的归一化定位界：$\mu=0$ 退化为纯通信，$\mu$ 越大则资源越转向感知。由于 $\bar R$ 以 bit/s/Hz 计而 $\bar C\in(0,1]$，$\mu$ 的取值需要相对 $\bar R$ 的典型量级来标定。约束 (C1) 与 (C2) 描述无人机运动学与飞行体积，(C3) 为防碰撞要求。功率预算 (C4) 限制各无人机由通信流与感知流共享的总功率，且须对每种衰落实现都成立。关联不属于策略的一部分：它由基于位置的规则 (17) 固定，在该规则下用户 $m$ 从唯一无人机 $k(m)$ 获取期望信号，而其他无人机发往其自身用户的流以及所有感知流都成为干扰。第 4 节在 3.1 节的受限类 $\mathfrak P_{\rm res}\subset\mathfrak P$ 上优化 (51)，故其取值是 $\mathfrak P$ 上最优值的下界。
+目标 (51) 是时间平均加权频谱效率减去 $\mu$ 倍的目标平均定位界：$\mu=0$ 退化为纯通信，$\mu$ 越大则资源越转向感知。由于 $\bar R$ 以 bit/s/Hz 计而 $\overline{\mathrm{CRB}}$ 以 m$^2$ 计，权衡权重 $\mu$ 的量纲为 (bit/s/Hz)/m$^2$：它给出定位界每平方米所对应的频谱效率价格，标定依据是 $\overline{\mathrm{CRB}}$ 的典型量级（此处为几十 m$^2$），而非 $\bar R$ 的量级。因此 $\mu$ 不依赖 $\Gamma_{\rm cap}$，放宽 cap 只是放松 (C5)，不需要重新缩放权重。约束 (C1) 与 (C2) 描述无人机运动学与飞行体积，(C3) 为防碰撞要求。功率预算 (C4) 限制各无人机由通信流与感知流共享的总功率，且须对每种衰落实现都成立。约束 (C5) 即感知需求：在时域与衰落上取平均后，定位 CRB 超出 $\Gamma_{\rm cap}$ 的目标–时隙对占比至多为 $\varepsilon$。若要求逐时隙、逐目标都满足，则在任一 $\mathbf J_n$ 秩亏时问题不可行——此时不存在满足需求的波束成形器；写成时域平均的形式既保持可行，又仍表达精度需求，$\varepsilon$ 直接把该需求与频谱效率做权衡。关联不属于策略的一部分：它由基于位置的规则 (17) 固定，在该规则下用户 $m$ 从唯一无人机 $k(m)$ 获取期望信号，而其他无人机发往其自身用户的流以及所有感知流都成为干扰。第 4 节在 3.1 节的受限类 $\mathfrak P_{\rm res}\subset\mathfrak P$ 上优化 (51)，故其取值是 $\mathfrak P$ 上最优值的下界。
 
 ### 3.4 难点
 
@@ -421,9 +422,9 @@ $$
 
 ### 5.1 仿真设置
 
-仿真器是一个基于 Gymnasium 与 NumPy 的 Python 环境，其中 2–3 节的每个时隙都被直接实现：A2G 信道在当前位置上抽取，关联按式 (17) 执行，发射协方差由 2.4 节的波束成形器产生，时隙指标 $\bar R[t]$ 与 $\bar C[t]$ 由接收 SINR 与位置 CRB 评估。每个回合开始时，用户与目标在服务区域内均匀随机投放，无人机从飞行体积内的可行位置出发，其后位置在 (C1)–(C3) 下演化。除另有说明外，采用表 1 的参数，$\mu=10$，$\delta=0.1$，每个报告值为在独立回合（不同随机种子）上的平均。式 (27) 中的等目标权重 $c_{k,n}[t]=1$ 为默认设置；最近目标规则、CRB 加权规则，以及以最大比传输代替 RZF，作为固定规则消融，使用相同的随机种子、轨迹与功率占比。
+仿真器是一个基于 Gymnasium 与 NumPy 的 Python 环境，其中 2–3 节的每个时隙都被直接实现：A2G 信道在当前位置上抽取，关联按式 (17) 执行，发射协方差由 2.4 节的波束成形器产生，时隙指标 $\bar R[t]$ 与 $\overline{\mathrm{CRB}}[t]$ 由接收 SINR 与位置 CRB 评估。每个回合开始时，用户与目标在服务区域内均匀随机投放，无人机从飞行体积内的可行位置出发，其后位置在 (C1)–(C3) 下演化。除另有说明外，采用表 1 的参数，$\mu=0.1$（单位 (bit/s/Hz)/m$^2$），$\varepsilon=0.05$，$\delta=0.1$，每个报告值为在独立回合（不同随机种子）上的平均；违规率 $r[t]$ 与 $\bar R[t]$、$\overline{\mathrm{CRB}}[t]$ 一并记录。式 (27) 中的等目标权重 $c_{k,n}[t]=1$ 为默认设置；最近目标规则、CRB 加权规则，以及以最大比传输代替 RZF，作为固定规则消融，使用相同的随机种子、轨迹与功率占比。
 
-在 $\mu=10$ 时，(51) 的两项量级相当，权衡处于活跃状态；更小的 $\mu$ 使工作点移向纯通信。
+在 $\mu=0.1$、$\overline{\mathrm{CRB}}[t]$ 为几十 m$^2$ 时，(51) 的两项量级相当，权衡处于活跃状态；更小的 $\mu$ 使工作点移向纯通信。
 
 **表 1 仿真参数**
 
@@ -440,7 +441,7 @@ $$
 | $N_s=BT_s$ | $10^5$ | $\sigma_{\rm rcs}$ | 1 m$^2$ |
 | $\kappa$ | 10 dB | $a$, $b$ | 9.61, 0.16 |
 | $\eta_{\rm L}$, $\eta_{\rm N}$ | 2, 3 | $d_0$ | 1 m |
-| $\Gamma_{\rm cap}$ | 100 m$^2$ | $\mu$, $\delta$ | 10, 0.1 |
+| $\Gamma_{\rm cap}$, $\delta$ | 100 m$^2$, 0.1 | $\mu$ | 0.1 (bit/s/Hz)/m$^2$ |
 
 **图 3（`fig:demo_env`）**：仿真环境的示意图。（图件为 `results/demo_env_fig1.png`，标题仍为占位）
 

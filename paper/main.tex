@@ -407,7 +407,7 @@ For a single UAV, the position block becomes singular when the target lies in th
 
 Apart from this geometric degeneracy, $\mathbf J_n$ is also rank deficient when the target is illuminated by a single stream: a rank-one $\mathbf R_k$ contributes at most two real dimensions through~\eqref{eq:fim_ang} and one through~\eqref{eq:jdel}, so $\operatorname{rank}(\mathbf J_n)\le3$ and the CRB is unbounded regardless of the geometry, while two streams at one UAV, or one stream at each of two UAVs, restore full rank.
 
-In the sequel, the sensing metric uses the capped bound $\widetilde{\mathrm{CRB}}_n=\min\{\mathrm{CRB}_n,\Gamma_{\rm cap}\}$: targets with a singular or ill-conditioned $\mathbf J_n$, such as those in the two regimes above, are assigned the value $\Gamma_{\rm cap}$, which keeps the metric finite.
+Throughout, $\Gamma_{\rm cap}$ denotes the sensing requirement, i.e., the largest acceptable position CRB of a target. It enters the problem of Section~\ref{sec:problem} only as the accuracy constraint~\eqref{C5} and never scales the sensing metric. A target in either of the two regimes above has an unbounded CRB and therefore violates the requirement for any beamformer. For numerical evaluation only, an unbounded value is replaced by a large finite constant $\Gamma_{\rm num}\gg\Gamma_{\rm cap}$, which keeps the averaged metric finite and penalizes such a configuration most strongly; $\Gamma_{\rm num}$ is not part of the problem statement and its value does not affect the feasible set.
 
 % \subsection{Assumptions}
 % \textbf{Assumptions.} The model relies on the following assumptions, each with its justification.
@@ -473,26 +473,27 @@ The beamformers determine the transmit covariance $\mathbf R_k[t]$ of Section~\r
 \end{equation}
 where $R_m[t]$ is given in Section~\ref{sec:model}. Normalizing by $\sum_m\omega_m$ makes $\bar R[t]$ independent of $M$ and of the scale of $\omega$.
 
-\textbf{Sensing metric.} The capped bound $\widetilde{\mathrm{CRB}}_n[t]=\min\{\mathrm{CRB}_n[t],\Gamma_{\rm cap}\}$ is normalized by $\Gamma_{\rm cap}$:
+\textbf{Sensing metric.} The position bounds are averaged over the targets and kept in physical units:
 \begin{equation}\label{eq:metric_c}
-\bar C[t]=\frac{1}{|\mathcal N|\,\Gamma_{\rm cap}}\sum_{n\in\mathcal N}\widetilde{\mathrm{CRB}}_n[t]\in(0,1],
+\overline{\mathrm{CRB}}[t]=\frac{1}{|\mathcal N|}\sum_{n\in\mathcal N}\mathrm{CRB}_n[t]\quad[\mathrm{m}^2],
 \end{equation}
-where $\widetilde{\mathrm{CRB}}_n[t]$ is the capped bound of~\eqref{eq:crb} evaluated at the slot-$t$ geometry and covariances. The targets are static and the bound depends on the beamformers only through $\mathbf R_k[t]$; since the beamformers use $\mathbf h[t]$, $\bar C[t]$ is random through the fading. The bound is evaluated slot by slot, so the information collected on the static targets is not accumulated across slots, which is conservative with respect to the accumulated bound of a tracking filter. The clipping, by contrast, is not conservative: whenever $\mathrm{CRB}_n[t]>\Gamma_{\rm cap}$ the metric reports $\Gamma_{\rm cap}$ instead of the true bound, so $\bar C[t]$ is optimistic in that regime.
+where $\mathrm{CRB}_n[t]$ is the bound of~\eqref{eq:crb} evaluated at the slot-$t$ geometry and covariances. Unlike the spectral efficiency, the metric is not normalized by $\Gamma_{\rm cap}$, so that its unit is the unit of the bound. The targets are static and the bound depends on the beamformers only through $\mathbf R_k[t]$; since the beamformers use $\mathbf h[t]$, $\overline{\mathrm{CRB}}[t]$ is random through the fading. The bound is evaluated slot by slot, so the information collected on the static targets is not accumulated across slots, which is conservative with respect to the accumulated bound of a tracking filter. The requirement $\Gamma_{\rm cap}$ is instead imposed separately, through the violation rate $r[t]=\frac{1}{|\mathcal N|}\sum_{n\in\mathcal N}\mathbf 1\{\mathrm{CRB}_n[t]>\Gamma_{\rm cap}\}$, i.e., the fraction of targets whose bound exceeds the requirement in slot $t$; $r[t]$ is the quantity constrained in~\eqref{C5}.
 
 \subsection{Problem Statement}
 
 With the trade-off weight $\mu\ge 0$, the mission problem is
 \begin{align}
-\max_{\mathcal{P}\in\mathfrak P}\quad & \mathbb E_{\mathcal{P}}\Big[\frac1T\sum_{t=0}^{T-1}\Big(\bar R[t]-\mu\,\bar C[t]\Big)\Big] \label{opt:main}\\
+\max_{\mathcal{P}\in\mathfrak P}\quad & \mathbb E_{\mathcal{P}}\Big[\frac1T\sum_{t=0}^{T-1}\Big(\bar R[t]-\mu\,\overline{\mathrm{CRB}}[t]\Big)\Big] \label{opt:main}\\
 \text{s.t.}\quad & \|\mathbf p_k[t+1]-\mathbf p_k[t]\|\le v_{\max}\Delta t, \ \forall k,\,t\le T-2, \tag{C1}\label{C1}\\
 & \mathbf p_k[t]\in\mathcal A\times[z_{\min},z_{\max}], \ \forall k,\,t, \tag{C2}\label{C2}\\
 & \|\mathbf p_k[t]-\mathbf p_{k'}[t]\|\ge d_{\min}, \ \forall k\neq k',\,t, \tag{C3}\label{C3}\\
-& \operatorname{tr}(\mathbf R_k[t])\le P_{\max}, \ \forall k,\,t, \tag{C4}\label{C4}
+& \operatorname{tr}(\mathbf R_k[t])\le P_{\max}, \ \forall k,\,t, \tag{C4}\label{C4}\\
+& \mathbb E_{\mathcal{P}}\Big[\frac1T\sum_{t=0}^{T-1}r[t]\Big]\le\varepsilon, \tag{C5}\label{C5}
 \end{align}
 
-where the expectation is over the user mobility and the small-scale fading, the constraints must hold almost surely, and $\mathbf p_k[0]$ is given.
+where the expectation is over the user mobility and the small-scale fading, constraints~\eqref{C1}--\eqref{C4} must hold almost surely, \eqref{C5} is a requirement on the average violation rate, and $\mathbf p_k[0]$ is given.
 
-The objective~\eqref{opt:main} is the time-averaged weighted spectral efficiency minus $\mu$ times the normalized localization bound: $\mu=0$ recovers pure communication, and a larger $\mu$ shifts resources to sensing. Because $\bar R$ is in bit/s/Hz and $\bar C\in(0,1]$, the value of $\mu$ has to be calibrated against the typical magnitude of $\bar R$. Constraints~\eqref{C1} and~\eqref{C2} describe the UAV kinematics and flight volume, and~\eqref{C3} is the collision-avoidance requirement. The power budget~\eqref{C4} limits the total power of each UAV, shared by the communication and sensing streams, and it must hold for every fading realization. The association is not part of the policy: it is fixed by the position-based rule~\eqref{eq:assoc}, under which user $m$ takes its desired signal from the single UAV $k(m)$, while the streams that the other UAVs send to their own users, together with all sensing streams, become interference. Section~\ref{sec:method} optimizes~\eqref{opt:main} over the restricted class $\mathfrak P_{\rm res}\subset\mathfrak P$ of Section~\ref{sec:info}, so its value lower-bounds the optimum over $\mathfrak P$.
+The objective~\eqref{opt:main} is the time-averaged weighted spectral efficiency minus $\mu$ times the target-averaged localization bound: $\mu=0$ recovers pure communication, and a larger $\mu$ shifts resources to sensing. Because $\bar R$ is in bit/s/Hz and $\overline{\mathrm{CRB}}$ in m$^2$, the trade-off weight $\mu$ carries the unit (bit/s/Hz)/m$^2$: it prices one square metre of the localization bound in spectral efficiency, and it is calibrated against the typical magnitude of $\overline{\mathrm{CRB}}$ (tens of m$^2$ here) rather than against that of $\bar R$. Consequently $\mu$ does not depend on $\Gamma_{\rm cap}$, and raising the cap relaxes~\eqref{C5} without rescaling the weight. Constraints~\eqref{C1} and~\eqref{C2} describe the UAV kinematics and flight volume, and~\eqref{C3} is the collision-avoidance requirement. The power budget~\eqref{C4} limits the total power of each UAV, shared by the communication and sensing streams, and it must hold for every fading realization. Constraint~\eqref{C5} is the sensing requirement: on average over the horizon and over the fading, at most a fraction $\varepsilon$ of the target--slot pairs may have a position CRB above $\Gamma_{\rm cap}$. Enforcing it in every slot and for every target would be infeasible whenever some $\mathbf J_n$ is rank deficient, since then no beamformer meets the requirement; the horizon-average form keeps the problem feasible while still representing the accuracy requirement, and $\varepsilon$ trades that requirement directly against the spectral efficiency. The association is not part of the policy: it is fixed by the position-based rule~\eqref{eq:assoc}, under which user $m$ takes its desired signal from the single UAV $k(m)$, while the streams that the other UAVs send to their own users, together with all sensing streams, become interference. Section~\ref{sec:method} optimizes~\eqref{opt:main} over the restricted class $\mathfrak P_{\rm res}\subset\mathfrak P$ of Section~\ref{sec:info}, so its value lower-bounds the optimum over $\mathfrak P$.
 
 
 \subsection{Challenges}
@@ -531,9 +532,9 @@ State the convergence guarantee of Algorithm~\ref{alg:proposed}, e.g., a monoton
 \section{Simulation Results}\label{sec:results}
 
 \subsection{Simulation Setup}
-The simulator is a Python environment built on Gymnasium and NumPy, in which every slot of Sections~\ref{sec:model}--\ref{sec:problem} is implemented directly: the A2G channels are drawn at the current positions, the association follows~\eqref{eq:assoc}, the transmit covariances are produced by the beamformers of Section~\ref{sec:tx}, and the slot metrics $\bar R[t]$ and $\bar C[t]$ are evaluated from the received SINR and the position CRB. Users and targets are dropped uniformly at random in the service area at the beginning of each episode, the UAVs start from feasible positions in the flight volume, and their positions then evolve under \eqref{C1}--\eqref{C3}. Unless stated otherwise, the parameters of Table~\ref{tab:params} are used, $\mu=10$, $\delta=0.1$, and each reported value is averaged over independent episodes with different seeds. The equal target weighting $c_{k,n}[t]=1$ in \eqref{eq:sensing_sum} is the default; the nearest-target and CRB-weighted rules, as well as maximum-ratio transmission in place of RZF, are evaluated as fixed-rule ablations with the same seeds, trajectories, and power fractions.
+The simulator is a Python environment built on Gymnasium and NumPy, in which every slot of Sections~\ref{sec:model}--\ref{sec:problem} is implemented directly: the A2G channels are drawn at the current positions, the association follows~\eqref{eq:assoc}, the transmit covariances are produced by the beamformers of Section~\ref{sec:tx}, and the slot metrics $\bar R[t]$ and $\overline{\mathrm{CRB}}[t]$ are evaluated from the received SINR and the position CRB. Users and targets are dropped uniformly at random in the service area at the beginning of each episode, the UAVs start from feasible positions in the flight volume, and their positions then evolve under \eqref{C1}--\eqref{C3}. Unless stated otherwise, the parameters of Table~\ref{tab:params} are used, $\mu=0.1$ in (bit/s/Hz)/m$^2$, $\varepsilon=0.05$, $\delta=0.1$, and each reported value is averaged over independent episodes with different seeds; the violation rate $r[t]$ is logged alongside $\bar R[t]$ and $\overline{\mathrm{CRB}}[t]$. The equal target weighting $c_{k,n}[t]=1$ in \eqref{eq:sensing_sum} is the default; the nearest-target and CRB-weighted rules, as well as maximum-ratio transmission in place of RZF, are evaluated as fixed-rule ablations with the same seeds, trajectories, and power fractions.
 
-At $\mu=10$ the two terms of~\eqref{opt:main} are of comparable magnitude and the trade-off is active; smaller $\mu$ moves the operating point towards pure communication.
+At $\mu=0.1$, with $\overline{\mathrm{CRB}}[t]$ of the order of tens of m$^2$, the two terms of~\eqref{opt:main} are of comparable magnitude and the trade-off is active; smaller $\mu$ moves the operating point towards pure communication.
 
 \begin{table}[!t]
 \caption{Simulation Parameters}
@@ -555,7 +556,7 @@ $\sigma^2$, $\sigma_r^2$ & $-84$ dBm & $T_s$ & 1 ms\\
 $N_s=BT_s$ & $10^5$ & $\sigma_{\rm rcs}$ & 1 m$^2$\\
 $\kappa$ & 10 dB & $a$, $b$ & 9.61, 0.16\\
 $\eta_{\rm L}$, $\eta_{\rm N}$ & 2, 3 & $d_0$ & 1 m\\
-$\Gamma_{\rm cap}$ & 100 m$^2$ & $\mu$, $\delta$ & 10, 0.1\\
+$\Gamma_{\rm cap}$, $\delta$ & 100 m$^2$, 0.1 & $\mu$ & 0.1 (bit/s/Hz)/m$^2$\\
 \bottomrule
 \end{tabular}
 \end{table}
