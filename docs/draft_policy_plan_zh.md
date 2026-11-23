@@ -270,7 +270,7 @@ Algorithm 1: PPO-based trajectory and sensing-power learning
 修完之后，标定至少要做：
 
 - \(\mu=5,10\) 的完整 \(\varsigma\) 扫描。论文现在写 \(\mu=10\)，但现有原始表是 \(\mu=1\)，不能直接引用。
-- 感知方向对照：等权 / 最近目标 / 最大 CRB / 逆 CRB 加权；`null_space` 开/关。
+- 感知方向对照：等权 / 最近目标 / 最大 CRB / 逆 CRB 加权。
 - `target_centroid` 相对 `static` 的 \(\Delta\bar C\) 是否显著。现有结果约 \(1.7\sigma\)，不够；如果修完 RNG 仍然不显著，说明感知方向是瓶颈，RL 的感知故事不成立。
 - 冻结 \(\mu\)、\(\Gamma_{\rm cap}\)、\(T_s\)、感知方向规则，以及 \(c_{k,n}\) 是否进动作。
 

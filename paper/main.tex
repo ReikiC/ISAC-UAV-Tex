@@ -317,7 +317,7 @@ I_m={}&\sum_{k\in\mathcal K}\ \sum_{j\in\mathcal M_k\setminus\{m\}}\big|\mathbf 
 \end{aligned}
 \end{equation}
 where the inner sum excludes $j=m$: since $m\in\mathcal M_{k(m)}$ while $m\notin\mathcal M_k$ for $k\neq k(m)$, this removes exactly the desired stream of user $m$, i.e., the pair $(k,j)=(k(m),m)$, from the interference sum.
-The last term in \eqref{eq:interference} is the sensing leakage. With local CSI, UAV $k$ can null the $k=k(m)$ term for each of its served users by projecting its sensing beam onto the orthogonal complement of the served-user channel subspace, at the cost of a smaller sensing array gain; Sec.~\ref{sec:info} adopts this projection as a fixed beamforming rule.
+The last term in \eqref{eq:interference} is the sensing leakage, i.e., the power that the sensing beams of the UAVs deposit at the users. Section~\ref{sec:info} fixes the sensing beam and shows how this leakage is traded against the sensing gain through the power fraction $\varsigma_k$.
 The received SINR $\gamma_m$ and the achievable rate $R_m$ of user $m$ are then given by
 \begin{equation}
 \gamma_m=\frac{S_m}{\sigma^2+I_m},\qquad R_m=B\log_2(1+\gamma_m),
@@ -444,7 +444,7 @@ A \emph{policy} $\mathcal P$ is the collection of these two mappings over all sl
 \end{equation}
 The beamformers determine the transmit covariance $\mathbf R_k[t]$ of Section~\ref{sec:model}.
 
-\emph{Restricted policy class.} The class~\eqref{eq:policy} leaves the beamformers free to depend on the instantaneous CSI. For tractability we learn, instead, only the displacements together with the sensing power fractions $\varsigma_k[t]$, which are functions of $(\mathcal H_t,\mathcal X^{\rm I}[t])$ and are therefore decided before $\mathbf h[t]$ is realized; once $\mathbf h[t]$ is known, $\mathcal X^{\rm II}[t]$ follows fixed rules rather than an optimization: equal power split among the served users, regularized zero-forcing for the communication streams, and a sensing direction that either steers toward the targets or is projected onto the orthogonal complement of the served-user channels. With unit-norm directions $\hat{\mathbf d}_{k,j}[t]$ and $\hat{\mathbf d}_{k,r}[t]$, the beamformers are
+\emph{Restricted policy class.} The class~\eqref{eq:policy} leaves the beamformers free to depend on the instantaneous CSI. For tractability we learn, instead, only the displacements together with the sensing power fractions $\varsigma_k[t]$, which are functions of $(\mathcal H_t,\mathcal X^{\rm I}[t])$ and are therefore decided before $\mathbf h[t]$ is realized; once $\mathbf h[t]$ is known, $\mathcal X^{\rm II}[t]$ is produced by fixed low-complexity rules rather than by an optimization: an equal power split among the served users, RZF for the communication streams, and a target-steering beam for the sensing stream. The three rules are specified next. With unit-norm directions $\hat{\mathbf d}_{k,j}[t]$ and $\hat{\mathbf d}_{k,r}[t]$, the beamformers are
 \begin{equation}\label{eq:restricted_beams}
 \begin{aligned}
 \mathbf w_{k,j}[t]&=\sqrt{\tfrac{(1-\varsigma_k[t])P_{\max}}{|\mathcal M_k[t]|}}\,\hat{\mathbf d}_{k,j}[t],\quad j\in\mathcal M_k[t],\\
@@ -453,13 +453,19 @@ The beamformers determine the transmit covariance $\mathbf R_k[t]$ of Section~\r
 \end{equation}
 with $\varsigma_k[t]=1$ if $\mathcal M_k[t]=\emptyset$. Hence $\operatorname{tr}(\mathbf R_k[t])=P_{\max}$ always, i.e., \eqref{C4} holds with equality, and the learned policy belongs to a subclass $\mathfrak P_{\rm res}\subset\mathfrak P$.
 
-The sensing direction in \eqref{eq:restricted_beams} is selected by a binary switch $\iota\in\{0,1\}$. Let $\bar{\mathbf d}_{k,r}[t]\neq\mathbf 0$ be a fixed superposition of the target steering vectors, and let $\mathbf Q_k[t]\in\mathbb C^{N_t\times S_k}$, with $S_k=|\mathcal M_k[t]|$, be an orthonormal basis of $\operatorname{span}\{\mathbf h_{k,j}[t]\}_{j\in\mathcal M_k[t]}$. Then
-\begin{equation}\label{eq:nullspace_dir}
-\hat{\mathbf d}^{(\iota)}_{k,r}[t]=
-\frac{\big(\mathbf I-\iota\,\mathbf Q_k[t]\mathbf Q_k[t]^H\big)\bar{\mathbf d}_{k,r}[t]}
-{\big\|\big(\mathbf I-\iota\,\mathbf Q_k[t]\mathbf Q_k[t]^H\big)\bar{\mathbf d}_{k,r}[t]\big\|},
-\end{equation}
-and $\hat{\mathbf d}_{k,r}[t]=\hat{\mathbf d}^{(\iota)}_{k,r}[t]$ in \eqref{eq:restricted_beams}. For $\iota=0$, \eqref{eq:nullspace_dir} reduces to pure steering, $\hat{\mathbf d}^{(0)}_{k,r}[t]=\bar{\mathbf d}_{k,r}[t]/\|\bar{\mathbf d}_{k,r}[t]\|$. For $\iota=1$, it removes from $\bar{\mathbf d}_{k,r}[t]$ its projection onto the served-user channel subspace. If the norm in the denominator of \eqref{eq:nullspace_dir} falls below $\epsilon\|\bar{\mathbf d}_{k,r}[t]\|$ for a small tolerance $\epsilon>0$, the projection is numerically rank-deficient and we fall back to the unprojected direction. Whenever this fallback is not triggered, the resulting beam satisfies $\mathbf h_{k,j}^H[t]\mathbf w_{k,r}[t]=0$ for every $j\in\mathcal M_k[t]$, so the $k=k(m)$ term of the sensing-induced interference in $I_m$ vanishes, at the cost of a smaller sensing array gain. The projection does not change $\varsigma_k[t]$ or the power budget, and it does not protect the users served by other UAVs. Since $\hat{\mathbf d}_{k,r}[t]$ is computed from $\mathbf h[t]$, the switch belongs to $\mathcal X^{\rm II}[t]$; $\iota$ is fixed per experiment and is not a learned action.
+\emph{Beamforming design.} Both direction rules are closed form, so that $\mathcal X^{\rm II}[t]$ can be evaluated for every fading realization without an iterative optimization. For the communication streams, UAV $k$ applies regularized zero-forcing (RZF) over its served users. Let $\mathbf G_k[t]=\big[\mathbf h_{k,j}^H[t]\big]_{j\in\mathcal M_k[t]}\in\mathbb C^{|\mathcal M_k[t]|\times N_t}$ stack the served-user channels as rows. The precoder and the communication directions are
+\begin{align}
+\mathbf W_k[t]&=\mathbf G_k[t]^H\big(\mathbf G_k[t]\mathbf G_k[t]^H+\lambda_k[t]\mathbf I\big)^{-1},\label{eq:rzf}\\
+\hat{\mathbf d}_{k,j}[t]&=\frac{[\mathbf W_k[t]]_{:,j}}{\big\|[\mathbf W_k[t]]_{:,j}\big\|},\quad j\in\mathcal M_k[t],\label{eq:rzf_dir}
+\end{align}
+where $\lambda_k[t]=\delta\operatorname{tr}(\mathbf G_k[t]\mathbf G_k[t]^H)/|\mathcal M_k[t]|$ is a diagonal loading normalized by the average served-user channel gain, $\delta\ge0$ is a fixed dimensionless regularization coefficient, $\mathbf I$ is the identity matrix of size $|\mathcal M_k[t]|$, and $[\cdot]_{:,j}$ denotes the $j$-th column. Normalizing the loading by the average channel gain makes $\delta$ scale-invariant: $\delta\to0$ recovers zero-forcing, which removes the MUI among the served users exactly, whereas a large $\delta$ lets $\lambda_k[t]\mathbf I$ dominate and the directions approach maximum-ratio transmission. Since $|\mathcal M_k[t]|\le M<N_t$, the inverse in \eqref{eq:rzf} always exists. RZF acts only on the users served by the same UAV: it balances the MUI among them against the array gain, while the inter-UAV interference and the sensing leakage in \eqref{eq:interference} are not nulled and are handled by the learned trajectory and power decisions.
+
+For the sensing stream, UAV $k$ forms a single beam as a weighted superposition of the target steering vectors,
+\begin{align}
+\bar{\mathbf v}_k[t]&=\sum_{n\in\mathcal N}c_{k,n}[t]\,\mathbf a_{k,n}[t],\label{eq:sensing_sum}\\
+\hat{\mathbf d}_{k,r}[t]&=\bar{\mathbf v}_k[t]\big/\|\bar{\mathbf v}_k[t]\|,\label{eq:sensing_dir}
+\end{align}
+where $\mathbf a_{k,n}[t]\triangleq\mathbf a(\theta_{k,n}[t],\phi_{k,n}[t])$ is the ULA steering vector toward target $n$ (Section~\ref{sec:channel}) and $c_{k,n}[t]\ge0$ weighs the targets. The non-informative choice $c_{k,n}[t]=1$ spreads the sensing gain uniformly over the targets and is used by default; the rule that concentrates on the nearest target and the rule that favors the target with the largest previous CRB are alternative fixed rules kept for the ablation study. If the weighted sum in \eqref{eq:sensing_sum} cancels numerically, i.e., $\|\bar{\mathbf v}_k[t]\|$ falls below a small tolerance, we fall back to the steering vector of the target with the largest weight. The sensing beam is therefore designed for array gain toward the targets rather than for interference suppression: its leakage into the users remains in \eqref{eq:interference} and is controlled by the learned sensing power fraction $\varsigma_k[t]$ together with the trajectory. Both $\delta$ and the weighting rule for $c_{k,n}[t]$ are fixed per experiment and are not learned actions.
 
 
 \subsection{Performance Metrics}
@@ -528,7 +534,7 @@ State the convergence guarantee of Algorithm~\ref{alg:proposed}, e.g., a monoton
 \section{Simulation Results}\label{sec:results}
 
 \subsection{Simulation Setup}
-The simulator is a Python environment built on Gymnasium and NumPy, in which every slot of Sections~\ref{sec:model}--\ref{sec:problem} is implemented directly: the A2G channels are drawn at the current positions, the association follows~\eqref{eq:assoc}, the transmit covariances are produced by the beamformers of Section~\ref{sec:info}, and the slot metrics $\bar R[t]$ and $\bar C[t]$ are evaluated from the received SINR and the position CRB. Users and targets are dropped uniformly at random in the service area at the beginning of each episode, the UAVs start from feasible positions in the flight volume, and their positions then evolve under \eqref{C1}--\eqref{C3}. Unless stated otherwise, the parameters of Table~\ref{tab:params} are used, $\mu=10$, the null-space switch is $\iota=1$, and each reported value is averaged over independent episodes with different seeds. The pure-steering case $\iota=0$ is used as the ablation baseline; it changes only this switch, with the same seeds, trajectories, and power fractions.
+The simulator is a Python environment built on Gymnasium and NumPy, in which every slot of Sections~\ref{sec:model}--\ref{sec:problem} is implemented directly: the A2G channels are drawn at the current positions, the association follows~\eqref{eq:assoc}, the transmit covariances are produced by the beamformers of Section~\ref{sec:info}, and the slot metrics $\bar R[t]$ and $\bar C[t]$ are evaluated from the received SINR and the position CRB. Users and targets are dropped uniformly at random in the service area at the beginning of each episode, the UAVs start from feasible positions in the flight volume, and their positions then evolve under \eqref{C1}--\eqref{C3}. Unless stated otherwise, the parameters of Table~\ref{tab:params} are used, $\mu=10$, $\delta=0.1$, and each reported value is averaged over independent episodes with different seeds. The equal target weighting $c_{k,n}[t]=1$ in \eqref{eq:sensing_sum} is the default; the nearest-target and CRB-weighted rules, as well as maximum-ratio transmission in place of RZF, are evaluated as fixed-rule ablations with the same seeds, trajectories, and power fractions.
 
 At $\mu=10$ the two terms of~\eqref{opt:main} are of comparable magnitude and the trade-off is active; smaller $\mu$ moves the operating point towards pure communication.
 
@@ -552,7 +558,7 @@ $\sigma^2$, $\sigma_r^2$ & $-84$ dBm & $T_s$ & 1 ms\\
 $N_s=BT_s$ & $10^5$ & $\sigma_{\rm rcs}$ & 1 m$^2$\\
 $\kappa$ & 10 dB & $a$, $b$ & 9.61, 0.16\\
 $\eta_{\rm L}$, $\eta_{\rm N}$ & 2, 3 & $d_0$ & 1 m\\
-$\Gamma_{\rm cap}$ & 100 m$^2$ & $\mu$, $\iota$ & 10, 1\\
+$\Gamma_{\rm cap}$ & 100 m$^2$ & $\mu$, $\delta$ & 10, 0.1\\
 \bottomrule
 \end{tabular}
 \end{table}
