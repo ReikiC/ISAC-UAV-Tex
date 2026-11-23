@@ -1,6 +1,6 @@
 # 多无人机毫米波 ISAC 网络（论文正文中文版）
 
-> 说明：本文档由 `paper/main.tex` 中**已成稿**的正文翻译整理而来，公式保持原始 LaTeX 记号（可直接复制回 tex）。文中公式编号（如式 (17)、式 (34)、式 (52)）沿用 `main.tex` 当前编译出的编号，与 `main.pdf` 一致；本文档内的公式块未另行编号。
+> 说明：本文档由 `paper/main.tex` 中**已成稿**的正文翻译整理而来，公式保持原始 LaTeX 记号（可直接复制回 tex）。文中公式编号（如式 (17)、式 (39)、式 (52)）沿用 `main.tex` 当前编译出的编号，与 `main.pdf` 一致；本文档内的公式块未另行编号。
 > 纯模板/占位内容**未翻译**，仅在相应位置标注，包括：标题与作者块、摘要段、关键词、Introduction 的模板说明文字与 37 处 `placeholder` 段、Algorithm 1 的模板伪代码、`Proposed Method` 的说明性文字、Simulation Results 中的示例表 `tab:comparison`、Conclusion 的模板段、Acknowledgment。另有被注释掉的 Assumptions 列表与一条时隙索引注释（`main.tex` 第 394–408 行、第 178 行），不属于正文，未纳入。
 
 ---
@@ -203,7 +203,7 @@ I_m={}&\sum_{k\in\mathcal K}\ \sum_{j\in\mathcal M_k\setminus\{m\}}\big|\mathbf 
 \end{aligned}
 $$
 
-其中内层求和排除 $j=m$：由于 $m\in\mathcal M_{k(m)}$ 而 $k\neq k(m)$ 时 $m\notin\mathcal M_k$，这恰好把用户 $m$ 的期望流，即配对 $(k,j)=(k(m),m)$，从干扰求和中剔除。上式的最后一项即感知泄漏，即各无人机感知波束落在用户处的功率。3.1 节固定感知波束，并通过功率占比 $\varsigma_k$ 说明该泄漏与感知增益之间的权衡。用户 $m$ 的接收 SINR $\gamma_m$ 与可达速率 $R_m$ 为
+其中内层求和排除 $j=m$：由于 $m\in\mathcal M_{k(m)}$ 而 $k\neq k(m)$ 时 $m\notin\mathcal M_k$，这恰好把用户 $m$ 的期望流，即配对 $(k,j)=(k(m),m)$，从干扰求和中剔除。上式的最后一项即感知泄漏，即各无人机感知波束落在用户处的功率。2.5 节固定感知波束，并通过功率占比 $\varsigma_k$ 说明该泄漏与感知增益之间的权衡。用户 $m$ 的接收 SINR $\gamma_m$ 与可达速率 $R_m$ 为
 
 $$
 \gamma_m=\frac{S_m}{\sigma^2+I_m},\qquad R_m=B\log_2(1+\gamma_m),
@@ -211,9 +211,40 @@ $$
 
 其中 $\sigma^2$ 为噪声功率，$B$ 为系统带宽。
 
-### 2.5 感知模型
+### 2.5 波束成形设计
 
-#### 2.5.1 回波与观测模型
+本文不对波束成形器 $\mathbf w_{k,j}$ 与 $\mathbf w_{k,r}$ 做优化；它们由下述固定规则根据时隙几何、感知功率占比 $\varsigma_k$ 与 CSI 生成。每个波束成形器写为 $\mathbf w=\sqrt{p}\,\hat{\mathbf d}$，其中 $p\ge0$ 为该流分得的功率，$\hat{\mathbf d}$ 为决定波束空间形状的单位范数方向。给定上文定义的功率占比 $\varsigma_k$，两条流的功率均分：
+
+$$
+\begin{aligned}
+\mathbf w_{k,j}&=\sqrt{\tfrac{(1-\varsigma_k)P_{\max}}{|\mathcal M_k|}}\,\hat{\mathbf d}_{k,j},\quad j\in\mathcal M_k,\\
+\mathbf w_{k,r}&=\sqrt{\varsigma_k P_{\max}}\,\hat{\mathbf d}_{k,r},
+\end{aligned}
+$$
+
+若 $\mathcal M_k=\emptyset$ 则取 $\varsigma_k=1$。于是 $\operatorname{tr}(\mathbf R_k)=P_{\max}$：每个时隙都用满功率预算。
+
+**通信方向。** 对其所服务用户，无人机 $k$ 采用正则化迫零（RZF）。令 $\mathbf G_k=[\mathbf h_{k,j}^H]_{j\in\mathcal M_k}\in\mathbb C^{|\mathcal M_k|\times N_t}$ 以所服务用户信道为行。预编码器与通信方向为
+
+$$
+\mathbf W_k=\mathbf G_k^H\big(\mathbf G_k\mathbf G_k^H+\lambda_k\mathbf I\big)^{-1},\qquad
+\hat{\mathbf d}_{k,j}=\frac{[\mathbf W_k]_{:,j}}{\big\|[\mathbf W_k]_{:,j}\big\|},\quad j\in\mathcal M_k,
+$$
+
+其中 $\lambda_k=\delta\operatorname{tr}(\mathbf G_k\mathbf G_k^H)/|\mathcal M_k|$ 为按所服务用户平均信道增益归一化的对角加载，$\delta\ge0$ 为固定的无量纲正则化系数，$\mathbf I$ 为 $|\mathcal M_k|$ 阶单位阵，$[\cdot]_{:,j}$ 表示第 $j$ 列。按平均信道增益归一化使 $\delta$ 具有尺度不变性：$\delta\to0$ 退化为迫零，恰好消除所服务用户间的多用户干扰（MUI）；$\delta$ 较大时 $\lambda_k\mathbf I$ 占优，方向趋近最大比传输（MRT）。由于 $|\mathcal M_k|\le M<N_t$，式 (29) 中的逆恒存在。RZF 只作用于同一无人机所服务的用户：它在这些用户间的 MUI 与阵列增益之间折中；无人机间干扰与式 (26) 中的感知泄漏不被置零，而由功率占比与无人机位置决定。
+
+**感知方向。** 无人机 $k$ 以目标导向矢量的加权和构成单感知波束，
+
+$$
+\bar{\mathbf v}_k=\sum_{n\in\mathcal N}c_{k,n}\,\mathbf a_{k,n},\qquad
+\hat{\mathbf d}_{k,r}=\bar{\mathbf v}_k/\|\bar{\mathbf v}_k\|,
+$$
+
+其中 $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$ 为指向目标 $n$ 的 ULA 导向矢量（2.3 节），$c_{k,n}\ge0$ 为目标权重。无信息先验的取法 $c_{k,n}=1$ 把感知增益均匀分摊到各目标，是默认规则；只指向最近目标的规则、以及按上一时隙 CRB 加权的规则，是另两种固定规则，保留作消融。若式 (31) 的加权和数值相消，即 $\|\bar{\mathbf v}_k\|$ 低于小容差，则退回到权重最大目标的导向矢量。因此感知波束面向目标阵列增益而非干扰抑制：它落入用户的泄漏仍保留在式 (26) 中，由感知功率占比 $\varsigma_k$ 与无人机位置共同控制。
+
+### 2.6 感知模型
+
+#### 2.6.1 回波与观测模型
 
 各无人机由超高速回传链路互联并共享统一时钟与本振，因此其回波观测可相干融合。每个目标被建模为各向同性点散射体，其反射率不依赖观测方向。假定各目标在时延或角度上可相互分辨，故其回波互不重叠、每个 CRB 可独立处理；杂波被忽略，且用户不产生回波。
 
@@ -240,7 +271,7 @@ $$
 
 其中 $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$。该式揭示了感知与通信之间的耦合：感知性能对功率在各流之间如何分配不敏感，只依赖总的空域协方差，因此通信流同样对感知有贡献。
 
-#### 2.5.2 Fisher 信息矩阵
+#### 2.6.2 Fisher 信息矩阵
 
 对每个目标，未知参数向量为 $\boldsymbol\xi_n=[x_n,\,y_n,\,\ln|\chi_n|,\,\arg\chi_n]^T$，其中前两项为待估参数，后两项为冗余参数。由于所有无人机观测同一目标，它们共享同一对冗余参数。采用 $\ln|\chi_n|$ 参数化仅为记号方便；冗余参数的任意可逆重参数化都不改变位置 CRB。
 
@@ -258,7 +289,7 @@ $$
 \mathbf J^{\rm ang}_n=\frac{2N_s}{\sigma_r^2}\sum_{k\in\mathcal K}\operatorname{Re}\big\{\mathbf H_{k,n}^H\mathbf R_k\mathbf H_{k,n}\big\}.
 $$
 
-窄带模型 (29) 中不含时延：时延由宽带探测波形获得，其估计方差为 $(8\pi^2B_{\rm rms}^2\rho_{k,n})^{-1}$，其中 $\rho_{k,n}$ 为式 (30) 的回波 SNR，且在 $B$ 上频谱平坦时 $B_{\rm rms}^2=B^2/12$。由此得到关于水平位置的信息为
+窄带模型 (34) 中不含时延：时延由宽带探测波形获得，其估计方差为 $(8\pi^2B_{\rm rms}^2\rho_{k,n})^{-1}$，其中 $\rho_{k,n}$ 为式 (35) 的回波 SNR，且在 $B$ 上频谱平坦时 $B_{\rm rms}^2=B^2/12$。由此得到关于水平位置的信息为
 
 $$
 \mathbf J^{\rm del}_n=\sum_{k\in\mathcal K}8\pi^2B_{\rm rms}^2\Big(\frac{2}{c}\Big)^2\rho_{k,n}\,\mathbf e_{k,n}\mathbf e_{k,n}^T,
@@ -270,9 +301,9 @@ $$
 \mathbf J_n=\mathbf J^{\rm ang}_n+\operatorname{blkdiag}\big(\mathbf J^{\rm del}_n,\ \mathbf 0_{2\times2}\big).
 $$
 
-式 (34) 中的两个分块按“同一次回波的时延估计与角度估计相互独立”相加。由于上面只保留了群时延，时延与角度导数在频带上是正交的，而由阵列孔径引起的残余耦合可忽略，因为 $(N_t-1)\lambda/2\ll c/(2B)$。
+式 (39) 中的两个分块按“同一次回波的时延估计与角度估计相互独立”相加。由于上面只保留了群时延，时延与角度导数在频带上是正交的，而由阵列孔径引起的残余耦合可忽略，因为 $(N_t-1)\lambda/2\ll c/(2B)$。
 
-#### 2.5.3 克拉美–罗界（CRB）
+#### 2.6.3 克拉美–罗界（CRB）
 
 按位置参数与冗余参数对 $\mathbf J_n$ 分块：
 
@@ -290,7 +321,7 @@ $$
 
 对单架无人机而言，当目标位于平面 $r_y=y_n-y_k=0$ 内（即目标与无人机具有相同的 $y$ 坐标）时，位置分块变为奇异：角度信息与时延信息此时都沿 $x$ 方向作用，故 $y$ 坐标不可观测，ULA 也无法区分其轴线两侧。这是物理限制而非数值问题；且只有当所有无人机都满足 $y_n=y_k$ 时，它才会在 $K>1$ 时持续存在。
 
-除上述几何退化外，当目标仅被单个流照射时 $\mathbf J_n$ 也会降秩：秩一的 $\mathbf R_k$ 经式 (32) 至多贡献两个实维度、经式 (33) 贡献一个实维度，故 $\operatorname{rank}(\mathbf J_n)\le3$，无论几何如何 CRB 都无界；而单机两个流，或两机各一个流，即可恢复满秩。
+除上述几何退化外，当目标仅被单个流照射时 $\mathbf J_n$ 也会降秩：秩一的 $\mathbf R_k$ 经式 (37) 至多贡献两个实维度、经式 (38) 贡献一个实维度，故 $\operatorname{rank}(\mathbf J_n)\le3$，无论几何如何 CRB 都无界；而单机两个流，或两机各一个流，即可恢复满秩。
 
 在下文中，感知指标采用截断后的界 $\widetilde{\mathrm{CRB}}_n=\min\{\mathrm{CRB}_n,\Gamma_{\rm cap}\}$：如上述两种情形中 $\mathbf J_n$ 奇异或病态的目标被赋值为 $\Gamma_{\rm cap}$，以保证指标有限。
 
@@ -342,34 +373,7 @@ $$
 
 波束成形器确定了第 2 节中的发射协方差 $\mathbf R_k[t]$。
 
-**受限策略类。** 类 (44) 允许波束成形器自由依赖瞬时 CSI。为便于处理，我们转而只学习位移以及感知功率占比 $\varsigma_k[t]$——它们是 $(\mathcal H_t,\mathcal X^{\rm I}[t])$ 的函数，因而在 $\mathbf h[t]$ 实现之前即已确定；而一旦 $\mathbf h[t]$ 已知，$\mathcal X^{\rm II}[t]$ 由三条固定的低复杂度规则而非优化产生：服务用户间等功率分配、通信流采用 RZF、感知流采用目标导向波束。三条规则在下文给出。以单位范数方向 $\hat{\mathbf d}_{k,j}[t]$ 与 $\hat{\mathbf d}_{k,r}[t]$ 表示，波束成形器为
-
-$$
-\begin{aligned}
-\mathbf w_{k,j}[t]&=\sqrt{\tfrac{(1-\varsigma_k[t])P_{\max}}{|\mathcal M_k[t]|}}\,\hat{\mathbf d}_{k,j}[t],\quad j\in\mathcal M_k[t],\\
-\mathbf w_{k,r}[t]&=\sqrt{\varsigma_k[t]P_{\max}}\,\hat{\mathbf d}_{k,r}[t],
-\end{aligned}
-$$
-
-其中若 $\mathcal M_k[t]=\emptyset$ 则取 $\varsigma_k[t]=1$。于是恒有 $\operatorname{tr}(\mathbf R_k[t])=P_{\max}$，即 (C4) 取等号，且所学策略属于子类 $\mathfrak P_{\rm res}\subset\mathfrak P$。
-
-**波束成形设计。** 两条方向规则均为闭式，因此对每种衰落实现都可直接计算 $\mathcal X^{\rm II}[t]$，无需迭代优化。对通信流，无人机 $k$ 对其所服务用户采用正则化迫零（RZF）。令 $\mathbf G_k[t]=[\mathbf h_{k,j}^H[t]]_{j\in\mathcal M_k[t]}\in\mathbb C^{|\mathcal M_k[t]|\times N_t}$ 以所服务用户信道为行。预编码器与通信方向为
-
-$$
-\mathbf W_k[t]=\mathbf G_k[t]^H\big(\mathbf G_k[t]\mathbf G_k[t]^H+\lambda_k[t]\mathbf I\big)^{-1},\qquad
-\hat{\mathbf d}_{k,j}[t]=\frac{[\mathbf W_k[t]]_{:,j}}{\big\|[\mathbf W_k[t]]_{:,j}\big\|},\quad j\in\mathcal M_k[t],
-$$
-
-其中 $\lambda_k[t]=\delta\operatorname{tr}(\mathbf G_k[t]\mathbf G_k[t]^H)/|\mathcal M_k[t]|$ 为按所服务用户平均信道增益归一化的对角加载，$\delta\ge0$ 为固定的无量纲正则化系数，$\mathbf I$ 为 $|\mathcal M_k[t]|$ 阶单位阵，$[\cdot]_{:,j}$ 表示第 $j$ 列。按平均信道增益归一化使 $\delta$ 具有尺度不变性：$\delta\to0$ 退化为迫零，恰好消除所服务用户间的多用户干扰（MUI）；$\delta$ 较大时 $\lambda_k[t]\mathbf I$ 占优，方向趋近最大比传输（MRT）。由于 $|\mathcal M_k[t]|\le M<N_t$，式 (46) 中的逆恒存在。RZF 只作用于同一无人机所服务的用户：它在这些用户间的 MUI 与阵列增益之间折中；无人机间干扰与式 (26) 中的感知泄漏不被置零，而由学到的轨迹与功率决策处理。
-
-对感知流，无人机 $k$ 以目标导向矢量的加权和构成单波束，
-
-$$
-\bar{\mathbf v}_k[t]=\sum_{n\in\mathcal N}c_{k,n}[t]\,\mathbf a_{k,n}[t],\qquad
-\hat{\mathbf d}_{k,r}[t]=\bar{\mathbf v}_k[t]/\|\bar{\mathbf v}_k[t]\|,
-$$
-
-其中 $\mathbf a_{k,n}[t]\triangleq\mathbf a(\theta_{k,n}[t],\phi_{k,n}[t])$ 为指向目标 $n$ 的 ULA 导向矢量（2.3 节），$c_{k,n}[t]\ge0$ 为目标权重。无信息先验的取法 $c_{k,n}[t]=1$ 把感知增益均匀分摊到各目标，是默认规则；只指向最近目标的规则、以及按上一时隙 CRB 加权的规则，是另两种固定规则，保留作消融。若式 (48) 的加权和数值相消，即 $\|\bar{\mathbf v}_k[t]\|$ 低于小容差，则退回到权重最大目标的导向矢量。因此感知波束面向目标阵列增益而非干扰抑制：它落入用户的泄漏仍保留在式 (26) 中，由学到的感知功率占比 $\varsigma_k[t]$ 与轨迹共同控制。$\delta$ 与 $c_{k,n}[t]$ 的加权规则均按实验固定，不是被学习的动作。
+**受限策略类。** 类 (49) 允许波束成形器自由依赖瞬时 CSI。为便于处理，我们转而只学习位移以及感知功率占比 $\varsigma_k[t]$——它们是 $(\mathcal H_t,\mathcal X^{\rm I}[t])$ 的函数，因而在 $\mathbf h[t]$ 实现之前即已确定；一旦 $\mathbf h[t]$ 已知，$\mathcal X^{\rm II}[t]$ 由 2.5 节的固定规则而非优化产生。这些规则均为闭式，故 $\mathcal X^{\rm II}[t]$ 仍是 $(\mathcal H_t,\mathcal X^{\rm I}[t],\mathbf h[t])$ 的确定性函数；RZF 系数 $\delta$ 与目标加权规则按实验固定，不是被学习的动作。由于规则总是用满功率预算，$\operatorname{tr}(\mathbf R_k[t])=P_{\max}$，即 (C4) 取等号，且所学策略属于子类 $\mathfrak P_{\rm res}\subset\mathfrak P$。
 
 ### 3.2 性能指标
 
@@ -387,7 +391,7 @@ $$
 \bar C[t]=\frac{1}{|\mathcal N|\,\Gamma_{\rm cap}}\sum_{n\in\mathcal N}\widetilde{\mathrm{CRB}}_n[t]\in(0,1],
 $$
 
-其中 $\widetilde{\mathrm{CRB}}_n[t]$ 是式 (36) 的截断界在时隙 $t$ 的几何与协方差下的取值。目标是静止的，且该界仅通过 $\mathbf R_k[t]$ 依赖波束成形器；由于波束成形器使用 $\mathbf h[t]$，$\bar C[t]$ 因衰落而随机。该界逐时隙评估，故对静止目标所获信息不跨时隙累积，这相对于跟踪滤波器的累积界是保守的。相反，截断并不保守：一旦 $\mathrm{CRB}_n[t]>\Gamma_{\rm cap}$，指标报告的是 $\Gamma_{\rm cap}$ 而非真实界，因此在该区间内 $\bar C[t]$ 是乐观的。
+其中 $\widetilde{\mathrm{CRB}}_n[t]$ 是式 (41) 的截断界在时隙 $t$ 的几何与协方差下的取值。目标是静止的，且该界仅通过 $\mathbf R_k[t]$ 依赖波束成形器；由于波束成形器使用 $\mathbf h[t]$，$\bar C[t]$ 因衰落而随机。该界逐时隙评估，故对静止目标所获信息不跨时隙累积，这相对于跟踪滤波器的累积界是保守的。相反，截断并不保守：一旦 $\mathrm{CRB}_n[t]>\Gamma_{\rm cap}$，指标报告的是 $\Gamma_{\rm cap}$ 而非真实界，因此在该区间内 $\bar C[t]$ 是乐观的。
 
 ### 3.3 问题陈述
 
@@ -423,7 +427,7 @@ $$
 
 ### 5.1 仿真设置
 
-仿真器是一个基于 Gymnasium 与 NumPy 的 Python 环境，其中 2–3 节的每个时隙都被直接实现：A2G 信道在当前位置上抽取，关联按式 (17) 执行，发射协方差由 3.1 节的波束成形器产生，时隙指标 $\bar R[t]$ 与 $\bar C[t]$ 由接收 SINR 与位置 CRB 评估。每个回合开始时，用户与目标在服务区域内均匀随机投放，无人机从飞行体积内的可行位置出发，其后位置在 (C1)–(C3) 下演化。除另有说明外，采用表 1 的参数，$\mu=10$，$\delta=0.1$，每个报告值为在独立回合（不同随机种子）上的平均。式 (48) 中的等目标权重 $c_{k,n}[t]=1$ 为默认设置；最近目标规则、CRB 加权规则，以及以最大比传输代替 RZF，作为固定规则消融，使用相同的随机种子、轨迹与功率占比。
+仿真器是一个基于 Gymnasium 与 NumPy 的 Python 环境，其中 2–3 节的每个时隙都被直接实现：A2G 信道在当前位置上抽取，关联按式 (17) 执行，发射协方差由 2.5 节的波束成形器产生，时隙指标 $\bar R[t]$ 与 $\bar C[t]$ 由接收 SINR 与位置 CRB 评估。每个回合开始时，用户与目标在服务区域内均匀随机投放，无人机从飞行体积内的可行位置出发，其后位置在 (C1)–(C3) 下演化。除另有说明外，采用表 1 的参数，$\mu=10$，$\delta=0.1$，每个报告值为在独立回合（不同随机种子）上的平均。式 (31) 中的等目标权重 $c_{k,n}[t]=1$ 为默认设置；最近目标规则、CRB 加权规则，以及以最大比传输代替 RZF，作为固定规则消融，使用相同的随机种子、轨迹与功率占比。
 
 在 $\mu=10$ 时，(52) 的两项量级相当，权衡处于活跃状态；更小的 $\mu$ 使工作点移向纯通信。
 
