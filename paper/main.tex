@@ -326,9 +326,9 @@ where $\mathbf a_{k,n}\triangleq\mathbf a(\theta_{k,n},\phi_{k,n})$ is the ULA s
 
 The received signal of user $m$ is
 \begin{equation}
-y_m=\mathbf h_{k(m),m}^H\mathbf x_{k(m)}+n_m,
+y_m=\sum_{k\in\mathcal K}\mathbf h_{k,m}^H\mathbf x_k+n_m,
 \end{equation}
-where $n_m\sim\mathcal{CN}(0,\sigma^2)$ is the receiver noise, and the desired signal power is $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$. The interference at user $m$ consists of three parts: (i) MUI from the other communication streams of the serving UAV, (ii) inter-UAV interference from the communication streams that the non-serving UAVs send to their own users, and (iii) sensing-induced interference from the sensing beams of all UAVs, i.e.,
+where the sum runs over all UAVs, since the transmissions of the non-serving UAVs also reach user $m$, $n_m\sim\mathcal{CN}(0,\sigma^2)$ is the receiver noise, and the desired signal power is $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$. The interference at user $m$ consists of three parts: (i) MUI from the other communication streams of the serving UAV, (ii) inter-UAV interference from the communication streams that the non-serving UAVs send to their own users, and (iii) sensing-induced interference from the sensing beams of all UAVs, i.e.,
 \begin{equation}\label{eq:interference}
 \begin{aligned}
 I_m={}&\sum_{k\in\mathcal K}\ \sum_{j\in\mathcal M_k\setminus\{m\}}\big|\mathbf h_{k,m}^H\mathbf w_{k,j}\big|^2\\
@@ -431,7 +431,7 @@ In the sequel, the sensing metric uses the capped bound $\widetilde{\mathrm{CRB}
 
 Slot $t$ proceeds in the following order.
 \begin{enumerate}
-\item The CC observes the user positions $\mathbf u_m[t]$ and decides the UAV positions $\mathbf p_k[t]$. The association $k(m)[t]$ is not a decision: it follows deterministically from the positions through the rule~\eqref{eq:assoc}. For $t=0$, $\mathbf p_k[0]$ is given, so no first-stage decision remains.
+\item The CC observes the user positions $\mathbf u_m[t]$ and decides the UAV positions $\mathbf p_k[t]$ together with the sensing power fractions $\varsigma_k[t]$. The association $k(m)[t]$ is not a decision: it follows deterministically from the positions through the rule~\eqref{eq:assoc}. For $t=0$, $\mathbf p_k[0]$ is given, but $\varsigma_k[0]$ is still decided.
 \item The fading $\mathbf g^{\rm s}_{k,m}[t]$ is realized, which yields the channels $\mathbf h[t]$.
 \item The CC observes $\mathbf h[t]$ and decides the beamformers $\mathbf w_{k,j}[t]$ and $\mathbf w_{k,r}[t]$.
 \item The rates $R_m[t]$ and the bounds $\mathrm{CRB}_n[t]$ of the slot are evaluated.
@@ -443,7 +443,7 @@ Let the history available at the beginning of slot $t$ be
 \end{equation}
 i.e., the user positions up to and including slot $t$, and all decisions and channels of the previous slots. The decisions of slot $t$ fall into two groups,
 \begin{align}
-\mathcal X^{\rm I}[t] &= \big\{\mathbf p_k[t]\big\}, \\
+\mathcal X^{\rm I}[t] &= \big\{\mathbf p_k[t],\ \varsigma_k[t]\big\}, \\
 \mathcal X^{\rm II}[t] &= \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M_k[t]},\ \mathbf w_{k,r}[t]\big\},
 \end{align}
 where $\mathcal X^{\rm I}[t]$ is a function of $\mathcal H_t$, and $\mathcal X^{\rm II}[t]$ is a function of $(\mathcal H_t,\mathcal X^{\rm I}[t],\mathbf h[t])$. Note that $\mathcal M_k[t]$ is determined by the association $k(m)[t]$ of~\eqref{eq:assoc}, which is a deterministic function of the positions $\mathbf p_k[t]$ and $\mathbf u_m[t]$; it is therefore fixed once $\mathcal X^{\rm I}[t]$ is chosen and, in particular, is already defined when the beamformers are decided. Specifically, define two mappings
@@ -453,7 +453,7 @@ where $\mathcal X^{\rm I}[t]$ is a function of $\mathcal H_t$, and $\mathcal X^{
 \end{align}
 which yield
 \begin{align}
-    \mathcal{L}^{\rm I}_t\!\big(\mathcal H_t\big) &= \big\{\mathbf p_k[t]\big\}, \\
+    \mathcal{L}^{\rm I}_t\!\big(\mathcal H_t\big) &= \big\{\mathbf p_k[t],\ \varsigma_k[t]\big\}, \\
     \mathcal{L}^{\rm II}_t\!\big(\mathcal H_t,\,\mathcal X^{\rm I}[t],\,\mathbf h[t]\big) &= \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M_k[t]},\;\mathbf w_{k,r}[t]\big\}.
 \end{align}
 A \emph{policy} $\mathcal P$ is the collection of these two mappings over all slots, formalized as
@@ -462,7 +462,7 @@ A \emph{policy} $\mathcal P$ is the collection of these two mappings over all sl
 \end{equation}
 The beamformers determine the transmit covariance $\mathbf R_k[t]$ of Section~\ref{sec:model}.
 
-\emph{Restricted policy class.} The class~\eqref{eq:policy} leaves the beamformers free to depend on the instantaneous CSI. For tractability we learn, instead, only the displacements together with the sensing power fractions $\varsigma_k[t]$, which are functions of $(\mathcal H_t,\mathcal X^{\rm I}[t])$ and are therefore decided before $\mathbf h[t]$ is realized; once $\mathbf h[t]$ is known, $\mathcal X^{\rm II}[t]$ is produced by the fixed rules \eqref{eq:restricted_beams}--\eqref{eq:sensing_dir} rather than by an optimization. These rules are closed form, so $\mathcal X^{\rm II}[t]$ remains a deterministic function of $(\mathcal H_t,\mathcal X^{\rm I}[t],\mathbf h[t])$; the RZF coefficient $\delta$ and the target-weighting rule are fixed per experiment and are not learned actions. Since the rules always use the full power budget, $\operatorname{tr}(\mathbf R_k[t])=P_{\max}$, i.e., \eqref{C4} holds with equality, and the learned policy belongs to a subclass $\mathfrak P_{\rm res}\subset\mathfrak P$.
+\emph{Restricted policy class.} The class~\eqref{eq:policy} leaves the beamformers free to depend on the instantaneous CSI. For tractability we learn, instead, only the first-stage decisions $\mathcal X^{\rm I}[t]$, i.e., the UAV positions together with the sensing power fractions, which are functions of $\mathcal H_t$ and are therefore decided before $\mathbf h[t]$ is realized; once $\mathbf h[t]$ is known, $\mathcal X^{\rm II}[t]$ is produced by the fixed rules \eqref{eq:restricted_beams}--\eqref{eq:sensing_dir} rather than by an optimization. These rules are closed form, so $\mathcal X^{\rm II}[t]$ is a deterministic function of $(\mathcal H_t,\mathcal X^{\rm I}[t],\mathbf h[t])$; the RZF coefficient $\delta$ and the target-weighting rule are fixed per experiment and are not learned actions. Since the rules always use the full power budget, $\operatorname{tr}(\mathbf R_k[t])=P_{\max}$, i.e., \eqref{C4} holds with equality, and the learned policy belongs to a subclass $\mathfrak P_{\rm res}\subset\mathfrak P$.
 
 
 \subsection{Performance Metrics}

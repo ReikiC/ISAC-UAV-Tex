@@ -216,10 +216,10 @@ $$
 用户 $m$ 的接收信号为
 
 $$
-y_m=\mathbf h_{k(m),m}^H\mathbf x_{k(m)}+n_m,
+y_m=\sum_{k\in\mathcal K}\mathbf h_{k,m}^H\mathbf x_k+n_m,
 $$
 
-其中 $n_m\sim\mathcal{CN}(0,\sigma^2)$ 为接收噪声，期望信号功率为 $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$。用户 $m$ 处的干扰由三部分组成：(i) 来自服务无人机其他通信流的 MUI；(ii) 来自非服务无人机发往其自身用户的通信流的无人机间干扰；(iii) 来自所有无人机感知波束的感知致干扰，即
+其中求和覆盖所有无人机（非服务无人机的发射同样到达用户 $m$），$n_m\sim\mathcal{CN}(0,\sigma^2)$ 为接收噪声，期望信号功率为 $S_m=|\mathbf h_{k(m),m}^H\mathbf w_{k(m),m}|^2$。用户 $m$ 处的干扰由三部分组成：(i) 来自服务无人机其他通信流的 MUI；(ii) 来自非服务无人机发往其自身用户的通信流的无人机间干扰；(iii) 来自所有无人机感知波束的感知致干扰，即
 
 $$
 \begin{aligned}
@@ -327,7 +327,7 @@ $$
 
 时隙 $t$ 按如下顺序进行。
 
-1. CC 观测用户位置 $\mathbf u_m[t]$ 并决定无人机位置 $\mathbf p_k[t]$。关联 $k(m)[t]$ 不是决策：它由位置经规则 (17) 确定性地给出。对 $t=0$，$\mathbf p_k[0]$ 已给定，故不存在第一阶段决策。
+1. CC 观测用户位置 $\mathbf u_m[t]$，并决定无人机位置 $\mathbf p_k[t]$ 与感知功率占比 $\varsigma_k[t]$。关联 $k(m)[t]$ 不是决策：它由位置经规则 (17) 确定性地给出。对 $t=0$，$\mathbf p_k[0]$ 已给定，但 $\varsigma_k[0]$ 仍需决定。
 2. 衰落 $\mathbf g^{\rm s}_{k,m}[t]$ 实现，得到信道 $\mathbf h[t]$。
 3. CC 观测 $\mathbf h[t]$ 并决定波束成形器 $\mathbf w_{k,j}[t]$ 与 $\mathbf w_{k,r}[t]$。
 4. 评估该时隙的速率 $R_m[t]$ 与界 $\mathrm{CRB}_n[t]$。
@@ -341,7 +341,7 @@ $$
 即截至并包含时隙 $t$ 的用户位置，以及此前所有时隙的决策与信道。时隙 $t$ 的决策分为两组：
 
 $$
-\mathcal X^{\rm I}[t] = \big\{\mathbf p_k[t]\big\},\qquad
+\mathcal X^{\rm I}[t] = \big\{\mathbf p_k[t],\ \varsigma_k[t]\big\},\qquad
 \mathcal X^{\rm II}[t] = \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M_k[t]},\ \mathbf w_{k,r}[t]\big\},
 $$
 
@@ -355,7 +355,7 @@ $$
 它们给出
 
 $$
-\mathcal{L}^{\rm I}_t\!\big(\mathcal H_t\big) = \big\{\mathbf p_k[t]\big\},\qquad
+\mathcal{L}^{\rm I}_t\!\big(\mathcal H_t\big) = \big\{\mathbf p_k[t],\ \varsigma_k[t]\big\},\qquad
 \mathcal{L}^{\rm II}_t\!\big(\mathcal H_t,\,\mathcal X^{\rm I}[t],\,\mathbf h[t]\big) = \big\{\{\mathbf w_{k,j}[t]\}_{j\in\mathcal M_k[t]},\;\mathbf w_{k,r}[t]\big\}.
 $$
 
@@ -367,7 +367,7 @@ $$
 
 波束成形器确定了第 2 节中的发射协方差 $\mathbf R_k[t]$。
 
-**受限策略类。** 类 (48) 允许波束成形器自由依赖瞬时 CSI。为便于处理，我们转而只学习位移以及感知功率占比 $\varsigma_k[t]$——它们是 $(\mathcal H_t,\mathcal X^{\rm I}[t])$ 的函数，因而在 $\mathbf h[t]$ 实现之前即已确定；一旦 $\mathbf h[t]$ 已知，$\mathcal X^{\rm II}[t]$ 由 2.4 节的固定规则 (24)–(28) 而非优化产生。这些规则均为闭式，故 $\mathcal X^{\rm II}[t]$ 仍是 $(\mathcal H_t,\mathcal X^{\rm I}[t],\mathbf h[t])$ 的确定性函数；RZF 系数 $\delta$ 与目标加权规则按实验固定，不是被学习的动作。由于规则总是用满功率预算，$\operatorname{tr}(\mathbf R_k[t])=P_{\max}$，即 (C4) 取等号，且所学策略属于子类 $\mathfrak P_{\rm res}\subset\mathfrak P$。
+**受限策略类。** 类 (48) 允许波束成形器自由依赖瞬时 CSI。为便于处理，我们转而只学习第一阶段决策 $\mathcal X^{\rm I}[t]$，即无人机位置与感知功率占比——它们是 $\mathcal H_t$ 的函数，因而在 $\mathbf h[t]$ 实现之前即已确定；一旦 $\mathbf h[t]$ 已知，$\mathcal X^{\rm II}[t]$ 由 2.4 节的固定规则 (24)–(28) 而非优化产生。这些规则均为闭式，故 $\mathcal X^{\rm II}[t]$ 是 $(\mathcal H_t,\mathcal X^{\rm I}[t],\mathbf h[t])$ 的确定性函数；RZF 系数 $\delta$ 与目标加权规则按实验固定，不是被学习的动作。由于规则总是用满功率预算，$\operatorname{tr}(\mathbf R_k[t])=P_{\max}$，即 (C4) 取等号，且所学策略属于子类 $\mathfrak P_{\rm res}\subset\mathfrak P$。
 
 ### 3.2 性能指标
 
